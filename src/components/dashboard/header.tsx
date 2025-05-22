@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -11,15 +12,21 @@ import { format } from 'date-fns';
 
 export function DashboardHeader() {
   const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentDateDisplay, setCurrentDateDisplay] = useState<string>('Loading date...'); // Placeholder for date
   const [dateRange, setDateRange] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    }, 1000);
-    setCurrentTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })); // Initial set
+    const updateDateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setCurrentDateDisplay(now.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    };
+
+    updateDateTime(); // Set initial date and time on client mount
+    const timer = setInterval(updateDateTime, 1000); // Update every second
+
     return () => clearInterval(timer);
-  }, []);
+  }, []); // Empty dependency array ensures this runs once on mount and cleans up
 
   return (
     <header className="flex flex-col md:flex-row items-center justify-between p-4 bg-card shadow-md rounded-lg">
@@ -30,7 +37,7 @@ export function DashboardHeader() {
       <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
         <div className="flex items-center space-x-2 p-2 bg-secondary rounded-md">
           <Clock className="h-5 w-5 text-primary" />
-          <span className="text-sm font-medium text-secondary-foreground">{new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <span className="text-sm font-medium text-secondary-foreground">{currentDateDisplay}</span>
           <span className="text-sm font-bold text-primary">{currentTime}</span>
         </div>
         <div className="flex items-center space-x-2">

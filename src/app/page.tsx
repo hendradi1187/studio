@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -13,14 +14,16 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function RemedyDashboardPage() {
   const [kpiData, setKpiData] = useState<KpiData>(mockKpiData);
-  const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
+  const [tickets, setTickets] = useState<Ticket[]>([]); // Initialize with empty array
   const [pieChartData, setPieChartData] = useState<PieChartDataItem[]>(mockPieChartData);
   const [barChartData, setBarChartData] = useState<BarChartDataItem[]>(mockBarChartData);
   const [lineChartData, setLineChartData] = useState<LineChartDataItem[]>(mockLineChartData);
   const { toast } = useToast();
 
-  // Simulate data refresh
   useEffect(() => {
+    // Set initial data that might cause hydration issues on the client side
+    setTickets(mockTickets);
+
     const intervalId = setInterval(() => {
       // Example: Slightly change KPI data to show refresh
       setKpiData(prevData => ({
