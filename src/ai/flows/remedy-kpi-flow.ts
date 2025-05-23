@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Flow to retrieve KPI data for BMC Remedy tickets.
@@ -10,7 +9,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { KpiData } from '@/types';
-import { createClientAsync, type Client } from 'soap';
+import { callRemedyService } from '@/lib/remedy-client';
 import { formatISO, startOfDay, endOfDay } from 'date-fns';
 
 const KpiDataSchema = z.object({
@@ -21,124 +20,82 @@ const KpiDataSchema = z.object({
 });
 export type RemedyKpiOutput = z.infer<typeof KpiDataSchema>;
 
-/**
- * Fetches KPI data from the BMC Remedy SOAP service.
- * This function connects to the WSDL, makes appropriate service calls, and maps the response.
- */
-async function fetchKpiDataFromRemedyService(): Promise<KpiData> {
-  const wsdlUrl = 'https://helpdesk.skkmigas.go.id/arsys/WSDL/public/jkt-aplikasi291.bpmigas.com/HPD_IncidentInterface_WS';
-  
-  const remedyUsername = process.env.REMEDY_USERNAME;
-  const remedyPassword = process.env.REMEDY_PASSWORD;
-
-  if (!remedyUsername || !remedyPassword) {
-    console.error("Remedy username or password not configured in .env file. Please set REMEDY_USERNAME and REMEDY_PASSWORD.");
-    // In a real app, throw an error or return default error KPI data.
-    // For now, returning zeros to indicate failure to connect.
-    return {
-        activeTickets: 0,
-        pendingTickets: 0,
-        breachedTickets: 0,
-        closedToday: 0,
-    };
-  }
-
-  let client: Client;
+// Helper function to get ticket counts for a given qualification
+// IMPORTANT: This function needs to be updated to correctly parse the count
+// from the actual SOAP response. Currently, it returns 0 as a placeholder.
+const getTicketCount = async (qualification: string): Promise<number> => {
   try {
-    client = await createClientAsync(wsdlUrl);
-    // console.log('SOAP client created. Describing service:');
-    // console.log(JSON.stringify(client.describe().HPD_IncidentInterface_WSService.HPD_IncidentInterface_WSPortTypeSoap, null, 2));
+    const args = { Qualification: qualification, startRecord: "0", maxLimit: "0" };
+    // The method name from WSDL is HelpDesk_QueryList_Service.
+    const responseArray = await callRemedyService('HelpDesk_QueryList_Service', args);
+    
+    // TODO: Implement actual count parsing from responseArray[0] (the result object)
+    // This is highly dependent on how your Remedy service returns counts with maxLimit: "0".
+    // Examples:
+    // - It might be in a specific field: `responseArray[0]?.numMatches` or `responseArray[0]?.totalCount`.
+    // - It might be the length of `getListValues` if it returns a list even with maxLimit "0" but only metadata.
+    // - You might need to inspect the raw XML `responseArray[1]` if the parsed object isn't clear.
+    // For now, returning 0 to indicate this needs implementation.
+    console.log(`SOAP call for qualification "${qualification}" succeeded. Count parsing is a placeholder.`);
+    // Example of how you might access if it returns a list (check if `getListValues` exists and is an array):
+    // const list = responseArray?.[0]?.getListValues;
+    // if (Array.isArray(list)) return list.length; // This might be incorrect if it returns full items
+    // If a count field is available, e.g. responseArray?.[0]?.totalMatches
+    // if (responseArray?.[0] && typeof responseArray[0].totalMatches === 'number') {
+    //   return responseArray[0].totalMatches;
+    // } else if (responseArray?.[0] && typeof responseArray[0].totalMatches === 'string') {
+    //   return parseInt(responseArray[0].totalMatches, 10) || 0;
+    // }
+    // If your WSDL returns a specific num_matches attribute (you'd need to check exact naming)
+    // if (responseArray?.[0]?.attributes?.num_matches) {
+    //  return parseInt(responseArray[0].attributes.num_matches, 10) || 0;
+    // }
 
 
-    // Add Authentication Header as per WSDL:
-    // <soap:header message="s0:ARAuthenticate" part="parameters" use="literal"> </soap:header>
-    // <xsd:element name="AuthenticationInfo" type="s0:AuthenticationInfo"/>
-    // <xsd:complexType name="AuthenticationInfo"> <xsd:sequence>
-    //   <xsd:element name="userName" type="xsd:string"/>
-    //   <xsd:element name="password" type="xsd:string"/>
-    // ...
-    const authHeader = {
-      'AuthenticationInfo': {
-        attributes: { 'xmlns': 'urn:HPD_IncidentInterface_WS' }, // Namespace from WSDL targetNamespace
-        'userName': remedyUsername,
-        'password': remedyPassword,
-      }
-    };
-    client.addSoapHeader(authHeader);
+    // For the purpose of this exercise, since we cannot know the exact response structure for count,
+    // we will return 0. The user will need to update this part.
+    console.warn(`Placeholder count: The actual count extraction for qualification "${qualification}" needs to be implemented by inspecting the SOAP response.`);
+    return 0; // Placeholder: Replace with actual count parsing logic.
+  } catch (err) {
+    console.error(`SOAP call failed for qualification "${qualification}":`, err);
+    return 0; // Return 0 on error for this specific query
+  }
+};
 
-  } catch (error) {
-    console.error("Failed to create SOAP client or set auth header:", error);
-    // Fallback to zeros if client creation fails
+async function fetchKpiDataFromRemedyService(): Promise<KpiData> {
+  // Check if credentials are set (getRemedyClient will throw if not)
+  // This is more of a pre-check before multiple calls.
+  if (!process.env.REMEDY_USERNAME || !process.env.REMEDY_PASSWORD) {
+    console.error("Remedy username or password not configured. Returning zeroed KPI data.");
     return { activeTickets: 0, pendingTickets: 0, breachedTickets: 0, closedToday: 0 };
   }
-
-  // Helper function to get ticket counts for a given qualification
-  // IMPORTANT: The actual parsing of the count from the SOAP response needs to be verified.
-  // Remedy's `HelpDesk_QueryList_Service` with `maxLimit: "0"` might return the count
-  // in a specific field or require inspecting the raw response.
-  // For now, this function will simulate the count after attempting the call.
-  const getTicketCount = async (qualification: string): Promise<number> => {
-    try {
-      // For counting, typically startRecord is "0" and maxLimit is "0" or "1".
-      // If maxLimit is "0", some systems return a count directly, others return no records.
-      // If maxLimit is "1", it checks if at least one record exists.
-      const args = { Qualification: qualification, startRecord: "0", maxLimit: "0" };
-      
-      // The method name from WSDL is HelpDesk_QueryList_Service.
-      // The `soap` library client might append `Async` or have a different casing.
-      // Use client.describe() to confirm the exact method name on the client object.
-      // Common pattern: client.HelpDesk_QueryList_ServiceAsync(args)
-      
-      console.log(`Executing SOAP call for qualification: ${qualification}`);
-      // Example: const response = await client.HelpDesk_QueryList_ServiceAsync(args);
-      // The actual response structure for count needs to be determined.
-      // It might be response[0].totalMatches, response[0].numMatches, response[0].getListValues.length (if maxLimit returns records),
-      // or extracted from raw response (response[1]).
-      
-      // For now, simulating a count as the exact response parsing needs real server testing.
-      // TODO: Replace this with actual response parsing for the count.
-      // For example, if the response object `res` has a `numMatches` field: `return parseInt(res.numMatches) || 0;`
-      // Or if it's in the length of a returned list: `return res.getListValues ? res.getListValues.length : 0;`
-      
-      // This is a placeholder after attempting the call.
-      // In a real scenario, you'd parse `response` here.
-      await client.HelpDesk_QueryList_ServiceAsync(args); // Make the call
-      console.log(`SOAP call attempted for: ${qualification}. Count parsing is currently a placeholder.`);
-      return Math.floor(Math.random() * 10); // Placeholder count
-    } catch (err) {
-      console.error(`SOAP call failed for qualification "${qualification}":`, err);
-      return 0; // Return 0 on error for this specific query
-    }
-  };
-
-  // Define qualifications for each KPI
-  // Note: Remedy query syntax can be very specific. These are common patterns.
-  // 'Status' values are based on the <xsd:simpleType name="StatusType"> from WSDL
+  
+  // Define qualifications
   const activeTicketsQualification = "'Status'=\"New\" OR 'Status'=\"Assigned\" OR 'Status'=\"In Progress\"";
   const pendingTicketsQualification = "'Status'=\"Pending\"";
   
-  // Breached Tickets: Qualification depends on how SLAs are tracked.
-  // This might be a specific status, or a query on 'Target_Date' < NOW() AND 'Status' NOT IN ("Closed", "Resolved")
-  // For Remedy, date queries can be complex. Example: 'Target_Date' < $TIMESTAMP$ ( Remedy keyword for now)
-  // Or use specific date string formats if $TIMESTAMP$ is not supported/desired.
-  // Assuming a status 'Breached' might exist or is calculated elsewhere for simplicity here.
-  // Or a query like: `('Target_Date' < "${formatISO(new Date())}") AND ('Status' != "Resolved" AND 'Status' != "Closed")`
-  // This example assumes 'Breached' is a status that can be directly queried.
-  const breachedTicketsQualification = "'SLM Status' = \"Breached\" OR 'SLM Status' = \"SLA Missed\""; // Example if SLM Status field exists
+  // Breached Tickets: This query is highly dependent on your Remedy setup for SLA tracking.
+  // It might involve checking a specific 'SLM Status' field or comparing 'Target_Date' with NOW.
+  // Example assuming 'Target_Date' field and status not being final:
+  // const nowISO = formatISO(new Date());
+  // const breachedTicketsQualification = `'Target_Date' < "${nowISO}" AND ('Status' != "Resolved" AND 'Status' != "Closed" AND 'Status' != "Cancelled")`;
+  // Or if you have a specific SLM status field:
+  const breachedTicketsQualification = "'SLM Status' = \"Breached\" OR 'SLM Status' = \"SLA Missed\""; // Adjust if needed
 
   const todayStartISO = formatISO(startOfDay(new Date()));
   const todayEndISO = formatISO(endOfDay(new Date()));
-  // Remedy date format for queries can be 'YYYY-MM-DDTHH:mm:ssZ' or epoch seconds.
-  // Example: `'Closed_Date' >= "${todayStartISO}" AND 'Closed_Date' <= "${todayEndISO}"`
-  // Or using Remedy keywords if available: 'Closed_Date' >= $TODAY$ AND 'Closed_Date' < $TOMORROW$
+  // Remedy date format for queries: 'YYYY-MM-DDTHH:mm:ssZ' or similar.
+  // Ensure your Remedy system interprets these ISO strings correctly in queries.
   const closedTodayQualification = `'Status'="Closed" AND 'Closed_Date' >= "${todayStartISO}" AND 'Closed_Date' <= "${todayEndISO}"`;
 
-  // Fetch counts for each KPI
-  // These calls will be made sequentially. Consider Promise.all for parallel execution if appropriate.
-  const activeTickets = await getTicketCount(activeTicketsQualification);
-  const pendingTickets = await getTicketCount(pendingTicketsQualification);
-  const breachedTickets = await getTicketCount(breachedTicketsQualification); // Placeholder, actual query depends on SLA tracking
-  const closedToday = await getTicketCount(closedTodayQualification);
+  // Fetch counts
+  // Using Promise.all to fetch concurrently
+  const [activeTickets, pendingTickets, breachedTickets, closedToday] = await Promise.all([
+    getTicketCount(activeTicketsQualification),
+    getTicketCount(pendingTicketsQualification),
+    getTicketCount(breachedTicketsQualification),
+    getTicketCount(closedTodayQualification),
+  ]);
   
   return {
     activeTickets,
@@ -148,27 +105,21 @@ async function fetchKpiDataFromRemedyService(): Promise<KpiData> {
   };
 }
 
-
 const getRemedyKpiDataFlow = ai.defineFlow(
   {
     name: 'getRemedyKpiDataFlow',
-    inputSchema: z.object({}), // No specific input for now
+    inputSchema: z.object({}), // No specific input
     outputSchema: KpiDataSchema,
   },
   async () => {
-    console.log("Attempting to fetch KPI data from Remedy service...");
+    console.log("Attempting to fetch KPI data from live Remedy service...");
     const kpiData = await fetchKpiDataFromRemedyService();
-    console.log("KPI data received/simulated:", kpiData);
+    console.log("Live KPI data received (or defaulted to 0s on error/placeholder):", kpiData);
     return kpiData;
   }
 );
 
-/**
- * Fetches KPI data for the Remedy dashboard.
- * This function wraps the Genkit flow that fetches data from the BMC Remedy service.
- */
 export async function getRemedyKpiData(): Promise<RemedyKpiOutput> {
-  // The flow itself now contains the logic to call the service.
   const result = await getRemedyKpiDataFlow({});
   return result;
 }
