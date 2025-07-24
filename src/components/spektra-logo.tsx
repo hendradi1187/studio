@@ -21,8 +21,8 @@ export function SpektraLogo(props: React.HTMLAttributes<HTMLDivElement>) {
         />
       </svg>
       <div>
-        <span className="font-semibold text-foreground tracking-wider">SPEKTRA</span>
-        <p className="text-xs text-muted-foreground" style={{whiteSpace: 'nowrap'}}>
+        <span className="font-semibold text-white tracking-wider">SPEKTRA</span>
+        <p className="text-xs text-slate-400" style={{whiteSpace: 'nowrap'}}>
             Spektrum Data Connector
         </p>
       </div>

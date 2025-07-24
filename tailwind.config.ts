@@ -24,6 +24,9 @@ const config = {
         sans: ["var(--font-inter)", ...fontFamily.sans],
         code: ["var(--font-source-code-pro)", ...fontFamily.mono],
       },
+      boxShadow: {
+        'subtle': '0 1px 3px rgba(0,0,0,0.1)',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -80,10 +83,20 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in": "fade-in 0.5s ease-in-out",
+      },
+      transitionProperty: {
+        'width': 'width',
+        'height': 'height',
+        'spacing': 'margin, padding',
       },
     },
   },

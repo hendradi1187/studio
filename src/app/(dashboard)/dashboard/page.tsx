@@ -13,18 +13,21 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpRight, Check, Copy, ExternalLink, GitBranch, Github, Link as LinkIcon, Rss, Server, UserCheck, FileText, FileClock, UploadCloud, Layers, ScrollText, KeyRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const StatCard = ({ title, value }: { title: string; value: string | number }) => (
-    <Card className="text-center">
-      <CardContent className="p-4">
-        <p className="text-xs text-muted-foreground">{title}</p>
-        <p className="text-2xl font-semibold">{value}</p>
+    <Card className="text-center shadow-subtle">
+      <CardHeader className="p-4">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        <p className="text-3xl font-bold">{value}</p>
       </CardContent>
     </Card>
 );
 
 const InfoRow = ({ label, value, isLink = false, onCopy }: { label: string; value: string; isLink?: boolean; onCopy?: () => void; }) => (
-    <div className="flex items-center justify-between text-sm py-2">
+    <div className="flex items-center justify-between text-sm py-3">
         <span className="text-muted-foreground">{label}</span>
         <div className="flex items-center gap-2 font-mono text-xs">
             {isLink ? (
@@ -35,8 +38,8 @@ const InfoRow = ({ label, value, isLink = false, onCopy }: { label: string; valu
                 <span>{value}</span>
             )}
             {onCopy && (
-                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onCopy}>
-                    <Copy className="h-3 w-3" />
+                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onCopy}>
+                    <Copy className="h-4 w-4" />
                 </Button>
             )}
         </div>
@@ -45,20 +48,24 @@ const InfoRow = ({ label, value, isLink = false, onCopy }: { label: string; valu
 
 
 export default function DashboardPage() {
+  const { toast } = useToast();
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    // You could add a toast notification here
+    toast({
+        title: "Copied to clipboard!",
+        description: "The connector information has been copied.",
+    })
   };
   
   return (
     <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Dashboard Konektor</h1>
+        <h1 className="text-3xl font-bold">Dashboard Konektor</h1>
         <p className="text-muted-foreground">Gambaran umum kinerja dan properti Konektor Anda.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Incoming and Outgoing Data */}
-            <Card>
+            <Card className="shadow-subtle">
                 <CardHeader>
                     <CardTitle>Data Masuk</CardTitle>
                     <CardDescription>Proses Transfer</CardDescription>
@@ -67,7 +74,7 @@ export default function DashboardPage() {
                     Tidak ada data
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="shadow-subtle">
                 <CardHeader>
                     <CardTitle>Data Keluar</CardTitle>
                     <CardDescription>Proses Transfer</CardDescription>
@@ -78,7 +85,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* SPEKTRA Connector */}
-            <Card className="lg:row-span-2">
+            <Card className="lg:row-span-2 shadow-subtle">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>Konektor SPEKTRA</span>
@@ -122,12 +129,12 @@ export default function DashboardPage() {
 
             {/* Connector Properties */}
             <div className="md:col-span-2">
-                 <Card>
+                 <Card className="shadow-subtle">
                     <CardHeader>
                         <CardTitle>Properti Konektor</CardTitle>
                         <CardDescription>Properti Tambahan</CardDescription>
                     </CardHeader>
-                    <CardContent className="divide-y">
+                    <CardContent className="divide-y divide-border">
                         <InfoRow label="Connector Endpoint" value="http://provider/api/dsp" onCopy={() => handleCopy('http://provider/api/dsp')} />
                         <InfoRow label="Participant ID" value="provider" onCopy={() => handleCopy('provider')} />
                         <InfoRow label="Judul Konektor" value="provider Title" />
