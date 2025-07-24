@@ -60,27 +60,27 @@ export default function DashboardPage() {
   
   return (
     <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Dashboard Konektor</h1>
-        <p className="text-muted-foreground">Gambaran umum kinerja dan properti Konektor Anda.</p>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="text-muted-foreground">Overview of your Connector's performance and properties.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Incoming and Outgoing Data */}
             <Card className="shadow-subtle">
                 <CardHeader>
-                    <CardTitle>Data Masuk</CardTitle>
-                    <CardDescription>Proses Transfer</CardDescription>
+                    <CardTitle>Incoming Data</CardTitle>
+                    <CardDescription>Transfer Processes</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-muted-foreground py-10">
-                    Tidak ada data
+                    No data
                 </CardContent>
             </Card>
             <Card className="shadow-subtle">
                 <CardHeader>
-                    <CardTitle>Data Keluar</CardTitle>
-                    <CardDescription>Proses Transfer</CardDescription>
+                    <CardTitle>Outgoing Data</CardTitle>
+                    <CardDescription>Transfer Processes</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-muted-foreground py-10">
-                    Tidak ada data
+                    No data
                 </CardContent>
             </Card>
 
@@ -88,14 +88,14 @@ export default function DashboardPage() {
             <Card className="lg:row-span-2 shadow-subtle">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span>Konektor SPEKTRA</span>
+                        <span>SPEKTRA Connector</span>
                         <Badge variant="secondary">v13.0.3</Badge>
                     </CardTitle>
-                    <CardDescription>Informasi Endpoint Utama</CardDescription>
+                    <CardDescription>Main Endpoint Information</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                        Bagikan informasi berikut untuk mengizinkan akses ke katalog Konektor SPEKTRA Anda.
+                       Share the following information to allow access to your SPEKTRA Connector catalog.
                     </p>
                     <div>
                         <Label className="text-xs">Connector Endpoint</Label>
@@ -116,6 +116,9 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardContent>
+                 <CardFooter>
+                    <Badge className="bg-blue-100 text-blue-800 border-blue-300">SKK Migas Connector</Badge>
+                 </CardFooter>
             </Card>
             
             {/* Stats Grid */}
@@ -131,18 +134,18 @@ export default function DashboardPage() {
             <div className="md:col-span-2">
                  <Card className="shadow-subtle">
                     <CardHeader>
-                        <CardTitle>Properti Konektor</CardTitle>
-                        <CardDescription>Properti Tambahan</CardDescription>
+                        <CardTitle>Connector Properties</CardTitle>
+                        <CardDescription>Additional Properties</CardDescription>
                     </CardHeader>
                     <CardContent className="divide-y divide-border">
                         <InfoRow label="Connector Endpoint" value="http://provider/api/dsp" onCopy={() => handleCopy('http://provider/api/dsp')} />
                         <InfoRow label="Participant ID" value="provider" onCopy={() => handleCopy('provider')} />
-                        <InfoRow label="Judul Konektor" value="provider Title" />
-                        <InfoRow label="Versi Konektor" value="v13.0.3" />
-                        <InfoRow label="Nama Organisasi Kurator" value="provider Curator" />
-                        <InfoRow label="URL Kurator" value="https://provider/curator" isLink />
-                        <InfoRow label="Nama Organisasi Pengelola" value="provider Maintainer" />
-                        <InfoRow label="URL Pengelola" value="https://provider/maintainer" isLink />
+                        <InfoRow label="Connector Title" value="provider Title" />
+                        <InfoRow label="Connector Version" value="v13.0.3" />
+                        <InfoRow label="Curator Organization Name" value="provider Curator" />
+                        <InfoRow label="Curator URL" value="https://provider/curator" isLink />
+                        <InfoRow label="Maintainer Organization Name" value="provider Maintainer" />
+                        <InfoRow label="Maintainer URL" value="https://provider/maintainer" isLink />
                     </CardContent>
                 </Card>
             </div>
