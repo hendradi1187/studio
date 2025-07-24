@@ -83,11 +83,11 @@ export default function DashboardLayout({
                 <SidebarMenuButton
                   asChild
                   isActive={isActive('/users')}
-                  tooltip="User Management"
+                  tooltip="Manajemen Pengguna"
                 >
                   <Link href="/users">
                     <Users />
-                    <span>User Management</span>
+                    <span>Manajemen Pengguna</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -95,11 +95,11 @@ export default function DashboardLayout({
                 <SidebarMenuButton
                   asChild
                   isActive={isActive('/vocabulary')}
-                  tooltip="Vocabulary"
+                  tooltip="Penyedia Kosakata"
                 >
                   <Link href="/vocabulary">
                     <BookText />
-                    <span>Vocabulary</span>
+                    <span>Penyedia Kosakata</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -107,11 +107,11 @@ export default function DashboardLayout({
                 <SidebarMenuButton
                   asChild
                   isActive={isActive('/broker')}
-                  tooltip="Broker Status"
+                  tooltip="Status Broker"
                 >
                   <Link href="/broker">
                     <GitBranch />
-                    <span>Broker Status</span>
+                    <span>Status Broker</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -119,11 +119,11 @@ export default function DashboardLayout({
                 <SidebarMenuButton
                   asChild
                   isActive={isActive('/logs')}
-                  tooltip="Transaction Logs"
+                  tooltip="Log Transaksi"
                 >
                   <Link href="/logs">
                     <History />
-                    <span>Transaction Logs</span>
+                    <span>Log Transaksi</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -135,11 +135,11 @@ export default function DashboardLayout({
                   <SidebarMenuButton
                     asChild
                     isActive={isActive('/settings')}
-                    tooltip="Settings"
+                    tooltip="Pengaturan"
                   >
                     <Link href="/settings">
                       <Settings />
-                      <span>Settings</span>
+                      <span>Pengaturan</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -165,7 +165,7 @@ export default function DashboardLayout({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 p-0">
-                  <div className="p-4 font-medium border-b">Notifications</div>
+                  <div className="p-4 font-medium border-b">Notifikasi</div>
                   <ScrollArea className="h-72">
                     <div className="p-4 space-y-4">
                       {notifications.map((n) => (
@@ -181,7 +181,7 @@ export default function DashboardLayout({
                     </div>
                   </ScrollArea>
                   <div className="p-2 border-t text-center">
-                    <Button variant="link" size="sm" className="w-full">View All</Button>
+                    <Button variant="link" size="sm" className="w-full">Lihat Semua</Button>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -200,16 +200,16 @@ export default function DashboardLayout({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <span>Pengaturan</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Users className="mr-2 h-4 w-4" />
-                    <span>Support</span>
+                    <span>Dukungan</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Logout</span>
+                    <span>Keluar</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
