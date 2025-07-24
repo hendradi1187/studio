@@ -13,6 +13,12 @@ import {
   PanelLeft,
   Settings,
   Users,
+  ShoppingBasket,
+  LifeBuoy,
+  Database,
+  Fingerprint,
+  Plug,
+  Library,
 } from 'lucide-react';
 
 import {
@@ -52,7 +58,7 @@ export default function DashboardLayout({
   const unreadNotifications = notifications.filter(n => !n.read).length;
 
   const isActive = (path: string) => {
-    return pathname === path;
+    return pathname.startsWith(path);
   };
 
   return (
@@ -67,63 +73,75 @@ export default function DashboardLayout({
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
-              <SidebarMenuItem>
+               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={isActive('/dashboard')}
-                  tooltip="Dashboard"
+                  tooltip="Marketplace"
                 >
                   <Link href="/dashboard">
-                    <LayoutDashboard />
-                    <span>Dashboard</span>
+                    <ShoppingBasket />
+                    <span>Marketplace</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={isActive('/users')}
-                  tooltip="Manajemen Pengguna"
+                  isActive={isActive('/service-desk')}
+                  tooltip="Service Desk"
+                >
+                  <Link href="#">
+                    <LifeBuoy />
+                    <span>Service Desk</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive('/knowledge-base')}
+                  tooltip="Knowledge Base"
+                >
+                  <Link href="#">
+                    <Library />
+                    <span>Knowledge Base</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive('/data-space-portal')}
+                  tooltip="Data Space Portal"
+                >
+                  <Link href="#">
+                    <Database />
+                    <span>Data Space Portal</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive('/identity-provider')}
+                  tooltip="Identity Provider"
                 >
                   <Link href="/users">
-                    <Users />
-                    <span>Manajemen Pengguna</span>
+                    <Fingerprint />
+                    <span>Identity Provider</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={isActive('/vocabulary')}
-                  tooltip="Penyedia Kosakata"
-                >
-                  <Link href="/vocabulary">
-                    <BookText />
-                    <span>Penyedia Kosakata</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/broker')}
-                  tooltip="Status Broker"
+                  isActive={isActive('/connector')}
+                  tooltip="Connector Status"
                 >
                   <Link href="/broker">
-                    <GitBranch />
-                    <span>Status Broker</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/logs')}
-                  tooltip="Log Transaksi"
-                >
-                  <Link href="/logs">
-                    <History />
-                    <span>Log Transaksi</span>
+                    <Plug />
+                    <span>Connector</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
