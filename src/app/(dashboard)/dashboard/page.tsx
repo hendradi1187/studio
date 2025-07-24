@@ -75,18 +75,18 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            {/* EDC Connector */}
+            {/* SPEKTRA Connector */}
             <Card className="lg:row-span-2">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span>EDC Connector</span>
+                        <span>SPEKTRA Connector</span>
                         <Badge variant="secondary">v13.0.3</Badge>
                     </CardTitle>
                     <CardDescription>provider Title</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                        Share the following Connector Endpoint to let others access your EDC Connector's catalog.
+                        Share the following Connector Endpoint to let others access your SPEKTRA Connector's catalog.
                     </p>
                     <div>
                         <Label className="text-xs">Connector Endpoint + Participant ID</Label>
@@ -143,12 +143,12 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>About EDC</CardTitle>
-                    <CardDescription>Eclipse Dataspace Components</CardDescription>
+                    <CardTitle>About SPEKTRA</CardTitle>
+                    <CardDescription>SPEKTRA Data Exchange Platform</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm text-muted-foreground mb-4">
-                        The Eclipse Dataspace Components framework facilitates sovereign, inter-organizational data exchange. It implements the International Data Spaces standard (IDS) as well as relevant protocols associated with GAIA-X.
+                        The SPEKTRA framework facilitates sovereign, inter-organizational data exchange. It implements the International Data Spaces standard (IDS) as well as relevant protocols associated with GAIA-X.
                     </p>
                     <p className="text-sm text-muted-foreground">
                         The framework is designed as extensible as possible to encourage integrations into various data ecosystems.
@@ -163,17 +163,17 @@ export default function DashboardPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Get Managed EDC</CardTitle>
+                    <CardTitle>Get Managed SPEKTRA</CardTitle>
                     <CardDescription>Connector-as-a-Service</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <p className="text-sm text-muted-foreground">
-                        To join data spaces like Catena-X within minutes, consider the managed solution by sovity. The Connector-as-a-Service (CaaS) is based on open-source software enriched with key enterprise features.
+                        To join data spaces like Catena-X within minutes, consider the managed solution by SPEKTRA. The Connector-as-a-Service (CaaS) is based on open-source software enriched with key enterprise features.
                     </p>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
                     <span className="text-sm font-semibold flex items-center gap-2">
-                        <ExternalLink className="h-4 w-4 text-primary" /> sovity
+                        <ExternalLink className="h-4 w-4 text-primary" /> SPEKTRA
                     </span>
                     <Button>Contact</Button>
                 </CardFooter>
@@ -182,7 +182,7 @@ export default function DashboardPage() {
         
          <Card>
             <CardHeader>
-                <CardTitle>About EDC UI</CardTitle>
+                <CardTitle>About SPEKTRA UI</CardTitle>
                 <CardDescription>Data Dashboard</CardDescription>
             </CardHeader>
             <CardContent>
