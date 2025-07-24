@@ -98,8 +98,8 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex min-h-screen w-full bg-muted/40">
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
-        <div className="flex h-16 items-center border-b px-6">
+      <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 flex-col border-r bg-background sm:flex">
+        <div className="flex h-20 items-center border-b px-6">
           <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
             <SpektraLogo />
           </Link>
@@ -129,7 +129,7 @@ export default function DashboardLayout({
           </NavGroup>
         </nav>
       </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64 w-full">
+      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-72 w-full">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-end gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
