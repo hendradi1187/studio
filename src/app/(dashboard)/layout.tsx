@@ -4,36 +4,18 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Bell,
-  BookText,
-  GitBranch,
-  History,
-  LayoutDashboard,
-  LogOut,
-  PanelLeft,
-  Settings,
-  Users,
-  ShoppingBasket,
-  LifeBuoy,
-  Database,
-  Fingerprint,
-  Plug,
-  Library,
+  FileText,
+  Home,
+  FileClock,
+  UploadCloud,
+  Layers,
+  ScrollText,
+  KeyRound,
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
-import { SpektraLogo } from '@/components/spektra-logo';
+import { SovityLogo } from '@/components/spektra-logo';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,198 +26,121 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { notifications } from '@/lib/mock-data';
-import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
+
+interface NavItemProps {
+  href: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+}
+
+const NavItem = ({ href, icon: Icon, children }: NavItemProps) => {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
+  return (
+    <li>
+      <Link
+        href={href}
+        className={cn(
+          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all',
+          isActive
+            ? 'bg-primary/10 text-primary'
+            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+        )}
+      >
+        <Icon className="h-4 w-4" />
+        <span>{children}</span>
+      </Link>
+    </li>
+  );
+};
+
+
+interface NavGroupProps {
+    label: string;
+    children: React.ReactNode;
+}
+
+const NavGroup = ({ label, children }: NavGroupProps) => {
+    const [isOpen, setIsOpen] = React.useState(true);
+    return (
+        <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-1">
+            <CollapsibleTrigger className="w-full text-left">
+                 <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {label}
+                    </span>
+                    {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                 </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+                 <ul className="space-y-1 ml-4 border-l pl-4">
+                    {children}
+                </ul>
+            </CollapsibleContent>
+        </Collapsible>
+    )
+}
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const unreadNotifications = notifications.filter(n => !n.read).length;
-
-  const isActive = (path: string) => {
-    return pathname.startsWith(path);
-  };
-
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar>
-          <SidebarHeader>
-            <div className="flex items-center gap-2">
-              <SpektraLogo />
-              <span className="font-semibold text-lg">SPEKTRA</span>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/dashboard')}
-                  tooltip="Marketplace"
-                >
-                  <Link href="/dashboard">
-                    <ShoppingBasket />
-                    <span>Marketplace</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/service-desk')}
-                  tooltip="Service Desk"
-                >
-                  <Link href="#">
-                    <LifeBuoy />
-                    <span>Service Desk</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/knowledge-base')}
-                  tooltip="Knowledge Base"
-                >
-                  <Link href="#">
-                    <Library />
-                    <span>Knowledge Base</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/data-space-portal')}
-                  tooltip="Data Space Portal"
-                >
-                  <Link href="#">
-                    <Database />
-                    <span>Data Space Portal</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/identity-provider')}
-                  tooltip="Identity Provider"
-                >
-                  <Link href="/users">
-                    <Fingerprint />
-                    <span>Identity Provider</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive('/connector')}
-                  tooltip="Connector Status"
-                >
-                  <Link href="/broker">
-                    <Plug />
-                    <span>Connector</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive('/settings')}
-                    tooltip="Pengaturan"
-                  >
-                    <Link href="/settings">
-                      <Settings />
-                      <span>Pengaturan</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
-        <SidebarInset>
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4">
-            <SidebarTrigger className="md:hidden">
-              <PanelLeft />
-            </SidebarTrigger>
-            <div className="ml-auto flex items-center gap-4">
-              <Popover>
-                <PopoverTrigger asChild>
-                   <Button variant="outline" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    {unreadNotifications > 0 && (
-                      <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-xs">
-                        {unreadNotifications}
-                      </Badge>
-                    )}
-                    <span className="sr-only">Toggle notifications</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-0">
-                  <div className="p-4 font-medium border-b">Notifikasi</div>
-                  <ScrollArea className="h-72">
-                    <div className="p-4 space-y-4">
-                      {notifications.map((n) => (
-                        <div key={n.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-                          <span className={`flex h-2 w-2 translate-y-1 rounded-full ${n.read ? '' : 'bg-primary'}`} />
-                          <div className="grid gap-1">
-                            <p className="text-sm font-medium">{n.title}</p>
-                            <p className="text-sm text-muted-foreground">{n.message}</p>
-                            <p className="text-xs text-muted-foreground">{n.date}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                  <div className="p-2 border-t text-center">
-                    <Button variant="link" size="sm" className="w-full">Lihat Semua</Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-             
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
-                    <Avatar>
-                      <AvatarImage src="https://placehold.co/32x32" alt="Admin" data-ai-hint="user avatar" />
-                      <AvatarFallback>AS</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Admin Spektra</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Pengaturan</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>Dukungan</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Keluar</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </header>
-          <main className="flex-1 p-6">{children}</main>
-        </SidebarInset>
+    <div className="flex min-h-screen w-full bg-muted/40">
+      <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
+        <div className="flex h-16 items-center border-b px-6">
+          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+            <SovityLogo className="text-foreground"/>
+          </Link>
+        </div>
+        <nav className="flex-1 space-y-2 p-4">
+          <ul className="space-y-1">
+            <NavItem href="/dashboard" icon={Home}>Dashboard</NavItem>
+            <NavItem href="#" icon={FileText}>Contracts</NavItem>
+            <NavItem href="#" icon={FileClock}>Transfer History</NavItem>
+          </ul>
+          
+          <NavGroup label="Consume">
+            <NavItem href="/dashboard" icon={KeyRound}>Catalog Browser</NavItem>
+          </NavGroup>
+          
+          <NavGroup label="Provide">
+            <NavItem href="#" icon={UploadCloud}>New Data Offer</NavItem>
+            <NavItem href="#" icon={Layers}>Data Offers</NavItem>
+            <NavItem href="#" icon={ScrollText}>Policies</NavItem>
+            <NavItem href="/users" icon={KeyRound}>Assets</NavItem>
+          </NavGroup>
+
+        </nav>
+      </aside>
+      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64 w-full">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-end gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
+                <Avatar>
+                  <AvatarImage src="https://placehold.co/32x32" alt="Admin" data-ai-hint="user avatar" />
+                  <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+        <main className="flex-1 p-4 sm:px-6 sm:py-0">{children}</main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
