@@ -112,7 +112,7 @@ export default function DashboardLayout({
           </ul>
           
           <NavGroup label="Consume">
-            <NavItem href="/vocabulary" icon={BookUser}>Catalog Browser</NavItem>
+            <NavItem href="/catalog" icon={BookUser}>Catalog Browser</NavItem>
           </NavGroup>
           
           <NavGroup label="Provide">
