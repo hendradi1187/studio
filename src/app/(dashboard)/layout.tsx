@@ -42,7 +42,7 @@ interface NavItemProps {
 
 const NavItem = ({ href, icon: Icon, children }: NavItemProps) => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || pathname.startsWith(href + '/');
 
   return (
     <li>
@@ -117,7 +117,7 @@ export default function DashboardLayout({
             <NavItem href="#" icon={UploadCloud}>New Data Offer</NavItem>
             <NavItem href="#" icon={Layers}>Data Offers</NavItem>
             <NavItem href="#" icon={ScrollText}>Policies</NavItem>
-            <NavItem href="#" icon={Database}>Assets</NavItem>
+            <NavItem href="/assets" icon={Database}>Assets</NavItem>
           </NavGroup>
 
           <NavGroup label="Administration">
