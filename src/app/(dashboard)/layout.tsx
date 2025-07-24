@@ -116,8 +116,8 @@ export default function DashboardLayout({
           </NavGroup>
           
           <NavGroup label="Provide">
-            <NavItem href="#" icon={UploadCloud}>New Data Offer</NavItem>
-            <NavItem href="#" icon={Layers}>Data Offers</NavItem>
+            <NavItem href="/offers/create" icon={UploadCloud}>New Data Offer</NavItem>
+            <NavItem href="/offers" icon={Layers}>Data Offers</NavItem>
             <NavItem href="/policies" icon={ShieldCheck}>Policies</NavItem>
             <NavItem href="/assets" icon={Database}>Assets</NavItem>
           </NavGroup>
