@@ -115,7 +115,7 @@ const SidebarNav = () => (
     <nav className="flex-1 space-y-2 p-4">
         <ul className="space-y-1">
         <NavItem href="/dashboard" icon={Home}>Dashboard</NavItem>
-        <NavItem href="#" icon={FileText} badgeCount={3}>Contracts</NavItem>
+        <NavItem href="/contracts" icon={FileText} badgeCount={3}>Contracts</NavItem>
         <NavItem href="/logs" icon={FileClock}>Transfer History</NavItem>
         </ul>
         
