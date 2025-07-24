@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -16,7 +17,8 @@ import {
   Users,
   Database,
   BookUser,
-  Settings
+  Settings,
+  ShieldCheck,
 } from 'lucide-react';
 
 import { SpektraLogo } from '@/components/spektra-logo';
@@ -116,7 +118,7 @@ export default function DashboardLayout({
           <NavGroup label="Provide">
             <NavItem href="#" icon={UploadCloud}>New Data Offer</NavItem>
             <NavItem href="#" icon={Layers}>Data Offers</NavItem>
-            <NavItem href="#" icon={ScrollText}>Policies</NavItem>
+            <NavItem href="/policies" icon={ShieldCheck}>Policies</NavItem>
             <NavItem href="/assets" icon={Database}>Assets</NavItem>
           </NavGroup>
 
