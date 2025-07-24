@@ -53,25 +53,27 @@ export default function DashboardPage() {
   
   return (
     <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <h1 className="text-2xl font-semibold">Dashboard Konektor</h1>
+        <p className="text-muted-foreground">Gambaran umum kinerja dan properti Konektor Anda.</p>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Incoming and Outgoing Data */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Incoming Data</CardTitle>
-                    <CardDescription>Transfer Processes</CardDescription>
+                    <CardTitle>Data Masuk</CardTitle>
+                    <CardDescription>Proses Transfer</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-muted-foreground py-10">
-                    No data
+                    Tidak ada data
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle>Outgoing Data</CardTitle>
-                    <CardDescription>Transfer Processes</CardDescription>
+                    <CardTitle>Data Keluar</CardTitle>
+                    <CardDescription>Proses Transfer</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-muted-foreground py-10">
-                    No data
+                    Tidak ada data
                 </CardContent>
             </Card>
 
@@ -79,29 +81,29 @@ export default function DashboardPage() {
             <Card className="lg:row-span-2">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span>SPEKTRA Connector</span>
+                        <span>Konektor SPEKTRA</span>
                         <Badge variant="secondary">v13.0.3</Badge>
                     </CardTitle>
-                    <CardDescription>provider Title</CardDescription>
+                    <CardDescription>Informasi Endpoint Utama</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                        Share the following Connector Endpoint to let others access your SPEKTRA Connector's catalog.
+                        Bagikan informasi berikut untuk mengizinkan akses ke katalog Konektor SPEKTRA Anda.
                     </p>
                     <div>
-                        <Label className="text-xs">Connector Endpoint + Participant ID</Label>
+                        <Label className="text-xs">Connector Endpoint</Label>
                         <div className="flex items-center gap-2 mt-1">
-                            <pre className="text-xs bg-muted p-2 rounded-md flex-grow truncate">http://provider/api/dsp?participantid=provider</pre>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy('http://provider/api/dsp?participantid=provider')}>
+                            <pre className="text-xs bg-muted p-2 rounded-md flex-grow truncate">http://provider/api/dsp</pre>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy('http://provider/api/dsp')}>
                                 <Copy className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>
                      <div>
-                        <Label className="text-xs">Management API URL</Label>
+                        <Label className="text-xs">Participant ID</Label>
                         <div className="flex items-center gap-2 mt-1">
-                           <pre className="text-xs bg-muted p-2 rounded-md flex-grow truncate">http://provider/api/management</pre>
-                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy('http://provider/api/management')}>
+                           <pre className="text-xs bg-muted p-2 rounded-md flex-grow truncate">provider</pre>
+                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy('provider')}>
                                 <Copy className="h-4 w-4" />
                             </Button>
                         </div>
@@ -111,10 +113,10 @@ export default function DashboardPage() {
             
             {/* Stats Grid */}
             <div className="md:col-span-2 grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <StatCard title="Your Data Offers" value={0} />
-                <StatCard title="Your Assets" value={0} />
-                <StatCard title="Your Policies" value={1} />
-                <StatCard title="Preconfigured Catalogs" value={1} />
+                <StatCard title="Data Offers" value={0} />
+                <StatCard title="Assets" value={0} />
+                <StatCard title="Policies" value={1} />
+                <StatCard title="Catalogs" value={1} />
                 <StatCard title="Contract Agreements" value={0} />
             </div>
 
@@ -122,85 +124,22 @@ export default function DashboardPage() {
             <div className="md:col-span-2">
                  <Card>
                     <CardHeader>
-                        <CardTitle>Connector Properties</CardTitle>
-                        <CardDescription>Additional Properties</CardDescription>
+                        <CardTitle>Properti Konektor</CardTitle>
+                        <CardDescription>Properti Tambahan</CardDescription>
                     </CardHeader>
                     <CardContent className="divide-y">
                         <InfoRow label="Connector Endpoint" value="http://provider/api/dsp" onCopy={() => handleCopy('http://provider/api/dsp')} />
                         <InfoRow label="Participant ID" value="provider" onCopy={() => handleCopy('provider')} />
-                        <InfoRow label="Title" value="provider Title" />
-                        <InfoRow label="Connector Version" value="v13.0.3" />
-                        <InfoRow label="Curator Organization Name" value="provider Curator" />
-                        <InfoRow label="Curator URL" value="https://provider/curator" isLink />
-                        <InfoRow label="Maintainer Organization Name" value="provider Maintainer" />
-                        <InfoRow label="Maintainer URL" value="https://provider/maintainer" isLink />
+                        <InfoRow label="Judul Konektor" value="provider Title" />
+                        <InfoRow label="Versi Konektor" value="v13.0.3" />
+                        <InfoRow label="Nama Organisasi Kurator" value="provider Curator" />
+                        <InfoRow label="URL Kurator" value="https://provider/curator" isLink />
+                        <InfoRow label="Nama Organisasi Pengelola" value="provider Maintainer" />
+                        <InfoRow label="URL Pengelola" value="https://provider/maintainer" isLink />
                     </CardContent>
                 </Card>
             </div>
         </div>
-
-        {/* Bottom Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>About SPEKTRA</CardTitle>
-                    <CardDescription>SPEKTRA Data Exchange Platform</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
-                        The SPEKTRA framework facilitates sovereign, inter-organizational data exchange. It implements the International Data Spaces standard (IDS) as well as relevant protocols associated with GAIA-X.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                        The framework is designed as extensible as possible to encourage integrations into various data ecosystems.
-                    </p>
-                </CardContent>
-                <CardFooter>
-                    <Button variant="outline">
-                        <Github className="mr-2 h-4 w-4" />
-                        GitHub
-                    </Button>
-                </CardFooter>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Get Managed SPEKTRA</CardTitle>
-                    <CardDescription>Connector-as-a-Service</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                        To join data spaces like Catena-X within minutes, consider the managed solution by SPEKTRA. The Connector-as-a-Service (CaaS) is based on open-source software enriched with key enterprise features.
-                    </p>
-                </CardContent>
-                <CardFooter className="flex justify-between items-center">
-                    <span className="text-sm font-semibold flex items-center gap-2">
-                        <ExternalLink className="h-4 w-4 text-primary" /> SPEKTRA
-                    </span>
-                    <Button>Contact</Button>
-                </CardFooter>
-            </Card>
-        </div>
-        
-         <Card>
-            <CardHeader>
-                <CardTitle>About SPEKTRA UI</CardTitle>
-                <CardDescription>Data Dashboard</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                    Example use cases, that you can try out with this application, are:
-                </p>
-                <ul className="space-y-2 text-sm">
-                    <ListItem>View the asset catalog available to you in your Dataspace using the <span className="text-link">Catalog Browser</span></ListItem>
-                    <ListItem>Negotiate a contract for data sharing in your Dataspace using the <span className="text-link">Catalog Browser</span></ListItem>
-                    <ListItem>View your existing contracts in the <span className="text-link">Contract Page</span></ListItem>
-                    <ListItem>Transfer an asset in your Dataspace using the <span className="text-link">Contract Page</span></ListItem>
-                    <ListItem>View which assets have been transferred in your Dataspace in the <span className="text-link">Transfer History Page</span></ListItem>
-                    <ListItem>View and create assets using the <span className="text-link">Asset Page</span></ListItem>
-                    <ListItem>View and create policies and apply these to assets in your Dataspace using the <span className="text-link">Policy Page</span></ListItem>
-                    <ListItem>Publish an asset into your Dataspace using the <span className="text-link">Data Offer Page</span></ListItem>
-                </ul>
-            </CardContent>
-        </Card>
     </div>
   );
 }

@@ -12,7 +12,11 @@ import {
   ScrollText,
   KeyRound,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  Users,
+  Database,
+  BookUser,
+  Settings
 } from 'lucide-react';
 
 import { SpektraLogo } from '@/components/spektra-logo';
@@ -102,20 +106,25 @@ export default function DashboardLayout({
           <ul className="space-y-1">
             <NavItem href="/dashboard" icon={Home}>Dashboard</NavItem>
             <NavItem href="#" icon={FileText}>Contracts</NavItem>
-            <NavItem href="#" icon={FileClock}>Transfer History</NavItem>
+            <NavItem href="/logs" icon={FileClock}>Transfer History</NavItem>
           </ul>
           
           <NavGroup label="Consume">
-            <NavItem href="/dashboard" icon={KeyRound}>Catalog Browser</NavItem>
+            <NavItem href="/vocabulary" icon={BookUser}>Catalog Browser</NavItem>
           </NavGroup>
           
           <NavGroup label="Provide">
             <NavItem href="#" icon={UploadCloud}>New Data Offer</NavItem>
             <NavItem href="#" icon={Layers}>Data Offers</NavItem>
             <NavItem href="#" icon={ScrollText}>Policies</NavItem>
-            <NavItem href="/users" icon={KeyRound}>Assets</NavItem>
+            <NavItem href="#" icon={Database}>Assets</NavItem>
           </NavGroup>
 
+          <NavGroup label="Administration">
+            <NavItem href="/users" icon={Users}>User Management</NavItem>
+            <NavItem href="/broker" icon={KeyRound}>Connector Status</NavItem>
+            <NavItem href="/settings" icon={Settings}>Notification Settings</NavItem>
+          </NavGroup>
         </nav>
       </aside>
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64 w-full">
@@ -130,12 +139,12 @@ export default function DashboardLayout({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem>Pengaturan</DropdownMenuItem>
+              <DropdownMenuItem>Dukungan</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem>Keluar</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
