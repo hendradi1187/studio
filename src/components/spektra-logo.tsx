@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-export function SpektraLogo(props: React.SVGProps<SVGSVGElement>) {
+export function SpektraLogo(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" {...props}>
       <svg
         width="24"
         height="24"
