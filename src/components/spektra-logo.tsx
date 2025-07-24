@@ -22,7 +22,7 @@ export function SpektraLogo(props: React.HTMLAttributes<HTMLDivElement>) {
       <div>
         <span className="font-semibold text-foreground tracking-wider">SPEKTRA</span>
         <p className="text-xs text-muted-foreground" style={{whiteSpace: 'nowrap'}}>
-            Sistem Pertukaran Data Terpadu Hulu Migas
+            Spektrum Data Connector
         </p>
       </div>
     </div>
