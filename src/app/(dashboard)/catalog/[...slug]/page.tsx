@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -50,8 +51,10 @@ const PropertyItem = ({ icon: Icon, label, value, isLink = false, onCopy }: { ic
 );
 
 
-export default function CatalogOfferDetailPage({ params }: { params: { slug: string[] } }) {
-  const [provider, demotest] = params.slug || [];
+export default function CatalogOfferDetailPage() {
+  const params = useParams();
+  const slug = params.slug as string[] || [];
+  const [provider, demotest] = slug;
   const { toast } = useToast();
 
   const handleCopy = (text: string) => {
