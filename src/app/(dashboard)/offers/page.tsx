@@ -23,7 +23,12 @@ import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
 const dataOffers = [
-  // Mock data, will be replaced with real data
+   {
+    id: 'my-data-offer',
+    assetId: 'urn:artifact:my-asset:1.0',
+    accessPolicy: 'my-policy-1',
+    contractPolicy: 'my-policy-1',
+  }
 ];
 
 export default function DataOffersPage() {
@@ -43,11 +48,7 @@ export default function DataOffersPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Data Offer List</CardTitle>
-          <CardDescription>A list of all data offers in the system.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="border rounded-md">
             <Table>
               <TableHeader>
@@ -69,7 +70,19 @@ export default function DataOffersPage() {
                         </TableCell>
                     </TableRow>
                 ) : (
-                  <></>
+                  dataOffers.map((offer) => (
+                    <TableRow key={offer.id}>
+                      <TableCell className="font-medium">{offer.id}</TableCell>
+                      <TableCell className="font-mono text-xs">{offer.assetId}</TableCell>
+                      <TableCell>{offer.accessPolicy}</TableCell>
+                      <TableCell>{offer.contractPolicy}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
