@@ -50,8 +50,7 @@ const PropertyItem = ({ icon: Icon, label, value, isLink = false, onCopy }: { ic
 );
 
 
-export default function CatalogOfferDetailPage({ params }: { params: { slug: string[] } }) {
-  const { slug } = params;
+export default function CatalogOfferDetailPage({ params: { slug } }: { params: { slug: string[] } }) {
   const [provider, demotest] = slug || [];
   const { toast } = useToast();
 
