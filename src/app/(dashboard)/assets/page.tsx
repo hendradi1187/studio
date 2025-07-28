@@ -18,11 +18,25 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronLeft,
+  ChevronRight,
+  PlusCircle,
+  Search,
+} from 'lucide-react';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
 
-const assets = [
+const assets: { asset: string; description: string }[] = [
   // Mock data, will be replaced with real data
 ];
 
@@ -37,42 +51,76 @@ export default function AssetsPage() {
         <Button asChild>
           <Link href="/assets/create">
             <PlusCircle className="mr-2 h-4 w-4" />
-            Create Asset
+            New Asset
           </Link>
         </Button>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Asset List</CardTitle>
-          <CardDescription>A list of all data assets in the system.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search..." className="pl-10" />
+            </div>
+          </div>
           <div className="border rounded-md">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Asset ID</TableHead>
-                  <TableHead>Version</TableHead>
-                  <TableHead>Content Type</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
+                  <TableHead>Asset</TableHead>
+                  <TableHead>Description</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {assets.length === 0 ? (
-                    <TableRow>
-                        <TableCell colSpan={5} className="text-center h-24">
-                            No assets found.
-                        </TableCell>
-                    </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center h-24">
+                      No results.
+                    </TableCell>
+                  </TableRow>
                 ) : (
-                  <></>
+                  assets.map((asset, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{asset.asset}</TableCell>
+                      <TableCell>{asset.description}</TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
+          </div>
+          <div className="flex items-center justify-between pt-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span>Rows per page</span>
+              <Select defaultValue="10">
+                <SelectTrigger className="w-20 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-4">
+              <span>1-0 of 0 results</span>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

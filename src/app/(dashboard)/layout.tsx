@@ -115,7 +115,7 @@ const SidebarNav = () => (
     <nav className="flex-1 space-y-2 p-4">
         <ul className="space-y-1">
         <NavItem href="/dashboard" icon={Home}>Dashboard</NavItem>
-        <NavItem href="/contracts" icon={FileText} badgeCount={3}>Contracts</NavItem>
+        <NavItem href="/contracts" icon={FileText} >Contracts</NavItem>
         <NavItem href="/logs" icon={FileClock}>Transfer History</NavItem>
         </ul>
         
@@ -133,7 +133,7 @@ const SidebarNav = () => (
         <NavGroup label="Administration">
         <NavItem href="/users" icon={Users}>User Management</NavItem>
         <NavItem href="/broker" icon={KeyRound}>Connector Status</NavItem>
-        <NavItem href="/settings" icon={Settings} badgeCount={1}>Notification Settings</NavItem>
+        <NavItem href="/settings" icon={Settings}>Notification Settings</NavItem>
         </NavGroup>
     </nav>
 );
@@ -284,5 +284,3 @@ export default function DashboardLayout({
     </ThemeProvider>
   );
 }
-
-    
