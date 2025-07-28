@@ -2,23 +2,14 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -28,41 +19,83 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  ChevronRight,
   Search,
   Database,
   MoreHorizontal,
   ChevronsLeft,
   ChevronsRight,
   ChevronLeft,
+  ChevronRight,
+  Info,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 const mockOffers = [
   {
     id: 'demotest',
+    name: 'DemoTest',
     description: 'Demo Description',
+    version: '1.0',
+    license: 'https://creativecommons.org/licenses/by/4.0/',
+    policy: 'unrestricted',
   },
 ];
 
 export default function CatalogBrowserPage() {
+    const { toast } = useToast();
+
+    const handleNegotiate = () => {
+        toast({
+            title: "Contract Negotiation Started",
+            description: "You will be notified when the process is complete.",
+        })
+    }
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>Catalog Browser</span>
-        <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground">provider</span>
-      </div>
-
+    <div className="space-y-6 animate-fade-in">
+        <div>
+            <h1 className="text-3xl font-bold">Catalog Browser</h1>
+            <p className="text-muted-foreground">Find and consume data from other connectors.</p>
+        </div>
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search..." className="pl-10" />
+        <CardHeader>
+             <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-grow">
+                    <Input
+                        id="connector-endpoint"
+                        placeholder="Enter another Connector's Endpoint URL..."
+                        className="pr-10"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                         <Info className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                </div>
+                <div className="relative w-full md:w-auto md:min-w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search within catalog..." className="pl-10" />
+                </div>
             </div>
-          </div>
-
+        </CardHeader>
+        <CardContent>
           <div className="border rounded-md">
             <Table>
               <TableHeader>
@@ -77,28 +110,56 @@ export default function CatalogBrowserPage() {
               <TableBody>
                 {mockOffers.length > 0 ? (
                   mockOffers.map((offer) => (
-                    <TableRow key={offer.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Database className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <div className="font-medium">DemoTest</div>
-                            <div className="text-xs text-muted-foreground">{offer.id}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{offer.description}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+                    <TableRow key={offer.id} className="cursor-pointer">
+                       <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <TableCell className="w-1/3">
+                                <div className="flex items-center gap-3">
+                                <Database className="h-5 w-5 text-muted-foreground" />
+                                <div>
+                                    <div className="font-medium">{offer.name}</div>
+                                    <div className="text-xs text-muted-foreground">{offer.id}</div>
+                                </div>
+                                </div>
+                            </TableCell>
+                        </AlertDialogTrigger>
+                         <AlertDialogTrigger asChild>
+                           <TableCell>{offer.description}</TableCell>
+                         </AlertDialogTrigger>
+
+                          <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Negotiate Contract for "{offer.name}"</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Review the terms and conditions before proceeding.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <div className="py-4 space-y-4">
+                                     <p className="text-sm"><strong>Standard License:</strong> <a href={offer.license} target="_blank" rel="noopener noreferrer" className="text-primary underline">{offer.license}</a></p>
+                                     <p className="text-sm"><strong>Policy:</strong> {offer.policy}</p>
+                                     <div className="flex items-center space-x-2 pt-4">
+                                        <Checkbox id="terms" />
+                                        <Label htmlFor="terms" className="text-sm font-normal">I agree to the Data Offer Terms & Conditions</Label>
+                                    </div>
+                                </div>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleNegotiate}>Confirm</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+
+                        <TableCell className="text-right">
+                           <AlertDialogTrigger asChild>
+                             <Button variant="outline" size="sm">Negotiate</Button>
+                            </AlertDialogTrigger>
+                        </TableCell>
+                      </AlertDialog>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center h-24">
-                      No offers found.
+                      No offers found. Enter a Connector Endpoint to start.
                     </TableCell>
                   </TableRow>
                 )}
@@ -143,4 +204,3 @@ export default function CatalogBrowserPage() {
     </div>
   );
 }
-
