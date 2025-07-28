@@ -26,6 +26,7 @@ import {
   Bell,
   LogOut,
   User,
+  GitBranch,
 } from 'lucide-react';
 
 import { SpektraLogo } from '@/components/spektra-logo';
@@ -132,7 +133,7 @@ const SidebarNav = () => (
 
         <NavGroup label="Administration">
         <NavItem href="/users" icon={Users}>User Management</NavItem>
-        <NavItem href="/broker" icon={KeyRound}>Connector Status</NavItem>
+        <NavItem href="/broker" icon={GitBranch}>Connector Status</NavItem>
         <NavItem href="/settings" icon={Settings}>Notification Settings</NavItem>
         </NavGroup>
     </nav>

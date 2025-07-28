@@ -48,6 +48,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const mockOffers = [
   {
@@ -57,6 +58,7 @@ const mockOffers = [
     version: '1.0',
     license: 'https://creativecommons.org/licenses/by/4.0/',
     policy: 'unrestricted',
+    provider: 'provider',
   },
 ];
 
@@ -109,30 +111,28 @@ export default function CatalogBrowserPage() {
               <TableBody>
                 {mockOffers.length > 0 ? (
                   mockOffers.map((offer) => (
-                    <AlertDialog key={offer.id}>
-                      <TableRow className="cursor-pointer">
-                        <AlertDialogTrigger asChild>
-                            <TableCell className="w-1/3">
-                                <div className="flex items-center gap-3">
-                                <Database className="h-5 w-5 text-muted-foreground" />
-                                <div>
-                                    <div className="font-medium">{offer.name}</div>
-                                    <div className="text-xs text-muted-foreground">{offer.id}</div>
-                                </div>
-                                </div>
-                            </TableCell>
-                        </AlertDialogTrigger>
-                         <AlertDialogTrigger asChild>
-                           <TableCell>{offer.description}</TableCell>
-                         </AlertDialogTrigger>
+                    <TableRow key={offer.id} className="cursor-pointer">
+                        <TableCell className="w-1/3">
+                          <Link href={`/catalog/${offer.provider}/${offer.id}`} className="flex items-center gap-3 hover:text-primary">
+                            <Database className="h-5 w-5 text-muted-foreground" />
+                            <div>
+                                <div className="font-medium">{offer.name}</div>
+                                <div className="text-xs text-muted-foreground">{offer.id}</div>
+                            </div>
+                           </Link>
+                        </TableCell>
+                       <TableCell>
+                         <Link href={`/catalog/${offer.provider}/${offer.id}`} className="block w-full h-full">
+                           {offer.description}
+                         </Link>
+                       </TableCell>
 
-                        <TableCell className="text-right">
+                      <TableCell className="text-right">
+                         <AlertDialog>
                            <AlertDialogTrigger asChild>
                              <Button variant="outline" size="sm">Negotiate</Button>
-                            </AlertDialogTrigger>
-                        </TableCell>
-                      </TableRow>
-                      <AlertDialogContent>
+                           </AlertDialogTrigger>
+                           <AlertDialogContent>
                             <AlertDialogHeader>
                             <AlertDialogTitle>Negotiate Contract for "{offer.name}"</AlertDialogTitle>
                             <AlertDialogDescription>
@@ -152,7 +152,9 @@ export default function CatalogBrowserPage() {
                             <AlertDialogAction onClick={handleNegotiate}>Confirm</AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog>
+                         </AlertDialog>
+                      </TableCell>
+                    </TableRow>
                   ))
                 ) : (
                   <TableRow>
