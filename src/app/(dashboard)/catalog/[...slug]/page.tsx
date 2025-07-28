@@ -23,6 +23,7 @@ import {
   Copy,
   FileQuestion,
   Book,
+  GitBranch,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
@@ -49,8 +50,8 @@ const PropertyItem = ({ icon: Icon, label, value, isLink = false, onCopy }: { ic
 );
 
 
-export default function CatalogOfferDetailPage({ params }: { params: { slug: string[] } }) {
-  const [provider, demotest] = params.slug || [];
+export default function CatalogOfferDetailPage({ params: { slug } }: { params: { slug: string[] } }) {
+  const [provider, demotest] = slug || [];
   const { toast } = useToast();
 
   const handleCopy = (text: string) => {
