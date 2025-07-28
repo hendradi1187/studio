@@ -70,7 +70,7 @@ const NavItem = ({ href, icon: Icon, children, badgeCount }: NavItemProps) => {
         className={cn(
           'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all',
           isActive
-            ? 'bg-primary/10 text-primary'
+            ? 'bg-sky-500/20 text-white'
             : 'text-slate-300 hover:bg-sky-500/20 hover:text-white'
         )}
       >
@@ -269,7 +269,7 @@ export default function DashboardLayout({
     >
         <div className="flex min-h-screen w-full">
             <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 flex-col border-r bg-slate-800 sm:flex">
-                <div className="flex h-20 items-center justify-center border-b border-b-slate-700">
+                <div className="flex h-20 items-center justify-center border-b border-b-slate-700 px-6">
                 <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-white">
                     <SpektraLogo />
                 </Link>
@@ -284,3 +284,5 @@ export default function DashboardLayout({
     </ThemeProvider>
   );
 }
+
+    
