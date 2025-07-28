@@ -21,7 +21,6 @@ import {
 import {
   Search,
   Database,
-  MoreHorizontal,
   ChevronsLeft,
   ChevronsRight,
   ChevronLeft,
@@ -110,8 +109,8 @@ export default function CatalogBrowserPage() {
               <TableBody>
                 {mockOffers.length > 0 ? (
                   mockOffers.map((offer) => (
-                    <TableRow key={offer.id} className="cursor-pointer">
-                       <AlertDialog>
+                    <AlertDialog key={offer.id}>
+                      <TableRow className="cursor-pointer">
                         <AlertDialogTrigger asChild>
                             <TableCell className="w-1/3">
                                 <div className="flex items-center gap-3">
@@ -127,34 +126,33 @@ export default function CatalogBrowserPage() {
                            <TableCell>{offer.description}</TableCell>
                          </AlertDialogTrigger>
 
-                          <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Negotiate Contract for "{offer.name}"</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Review the terms and conditions before proceeding.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <div className="py-4 space-y-4">
-                                     <p className="text-sm"><strong>Standard License:</strong> <a href={offer.license} target="_blank" rel="noopener noreferrer" className="text-primary underline">{offer.license}</a></p>
-                                     <p className="text-sm"><strong>Policy:</strong> {offer.policy}</p>
-                                     <div className="flex items-center space-x-2 pt-4">
-                                        <Checkbox id="terms" />
-                                        <Label htmlFor="terms" className="text-sm font-normal">I agree to the Data Offer Terms & Conditions</Label>
-                                    </div>
-                                </div>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleNegotiate}>Confirm</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-
                         <TableCell className="text-right">
                            <AlertDialogTrigger asChild>
                              <Button variant="outline" size="sm">Negotiate</Button>
                             </AlertDialogTrigger>
                         </TableCell>
-                      </AlertDialog>
-                    </TableRow>
+                      </TableRow>
+                      <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Negotiate Contract for "{offer.name}"</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Review the terms and conditions before proceeding.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <div className="py-4 space-y-4">
+                                 <p className="text-sm"><strong>Standard License:</strong> <a href={offer.license} target="_blank" rel="noopener noreferrer" className="text-primary underline">{offer.license}</a></p>
+                                 <p className="text-sm"><strong>Policy:</strong> {offer.policy}</p>
+                                 <div className="flex items-center space-x-2 pt-4">
+                                    <Checkbox id="terms" />
+                                    <Label htmlFor="terms" className="text-sm font-normal">I agree to the Data Offer Terms & Conditions</Label>
+                                </div>
+                            </div>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleNegotiate}>Confirm</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                   ))
                 ) : (
                   <TableRow>
