@@ -2,12 +2,10 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,8 +34,6 @@ import {
   ChevronRight,
   ArrowRight,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 import {
     ToggleGroup,
     ToggleGroupItem,
@@ -46,7 +42,8 @@ import {
 
 const mockContracts = [
   {
-    id: 'demotest',
+    id: '0197f34c-3b31-7622-b6b4-4b303d162489',
+    assetId: 'demotest',
     provider: 'provider',
     consumer: 'You',
     signedAt: 'Signed 1 minute ago',
@@ -104,23 +101,23 @@ export default function ContractsPage() {
               <TableBody>
                 {mockContracts.length > 0 ? (
                   mockContracts.map((contract) => (
-                    <TableRow key={contract.id}>
+                    <TableRow key={contract.id} className="cursor-pointer">
                       <TableCell>
-                        <div className="flex items-center gap-3">
+                        <Link href={`/contracts/${contract.id}`} className="flex items-center gap-3 w-full h-full">
                           <Cloud className="h-5 w-5 text-muted-foreground" />
                           <div>
-                            <div className="font-medium">{contract.id}</div>
+                            <div className="font-medium">{contract.assetId}</div>
                             <div className="text-xs text-muted-foreground flex items-center">
                                 <span>{contract.provider}</span>
                                 <ArrowRight className="h-3 w-3 mx-1" />
                                 <span>{contract.consumer}</span>
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       </TableCell>
-                      <TableCell>{contract.signedAt}</TableCell>
-                      <TableCell>{contract.terminatedAt}</TableCell>
-                      <TableCell>{contract.transfers}</TableCell>
+                       <TableCell><Link href={`/contracts/${contract.id}`} className="block w-full h-full">{contract.signedAt}</Link></TableCell>
+                      <TableCell><Link href={`/contracts/${contract.id}`} className="block w-full h-full">{contract.terminatedAt}</Link></TableCell>
+                      <TableCell><Link href={`/contracts/${contract.id}`} className="block w-full h-full">{contract.transfers}</Link></TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon">
                           <MoreHorizontal className="h-4 w-4" />
