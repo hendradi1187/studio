@@ -9,6 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -122,7 +123,7 @@ export default function ContractDetailPage() {
                         </div>
                     </div>
                 </CardContent>
-                <CardHeader className="flex flex-row items-center justify-between border-t">
+                <CardFooter className="flex flex-row items-center justify-between border-t p-6">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="destructive">Terminate</Button>
@@ -152,7 +153,7 @@ export default function ContractDetailPage() {
                         </AlertDialogContent>
                     </AlertDialog>
                     <Button variant="link">Show JSON-LD</Button>
-                </CardHeader>
+                </CardFooter>
            </Card>
         </TabsContent>
          <TabsContent value="overview">
@@ -160,7 +161,7 @@ export default function ContractDetailPage() {
         </TabsContent>
          <TabsContent value="properties">
              <Card><CardContent className="p-6">Properties content goes here.</CardContent></Card>
-        </Tabs-Content>
+        </TabsContent>
          <TabsContent value="transfer-history">
              <Card><CardContent className="p-6">Transfer history content goes here.</CardContent></Card>
         </TabsContent>
@@ -169,4 +170,3 @@ export default function ContractDetailPage() {
     </div>
   );
 }
-
