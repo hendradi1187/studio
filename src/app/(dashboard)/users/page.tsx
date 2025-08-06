@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -28,19 +29,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
-import { users } from '@/lib/mock-data';
+import { users as mockUsers } from '@/lib/mock-data'; // Renamed to avoid conflict
 
-export default function UsersPage() {
-  const [search, setSearch] = React.useState('');
+type User = {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    organization: string;
+    lastActive: string;
+}
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase()) ||
-      user.organization.toLowerCase().includes(search.toLowerCase())
-  );
-  
-  const getRoleBadge = (role: string) => {
+const getRoleBadge = (role: string) => {
     switch (role) {
       case 'Admin':
         return <Badge variant="destructive">Admin</Badge>;
@@ -53,8 +53,24 @@ export default function UsersPage() {
       default:
         return <Badge>{role}</Badge>;
     }
-  };
+};
 
+export default function UsersPage() {
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [search, setSearch] = React.useState('');
+
+  React.useEffect(() => {
+    // Simulate fetching data from an API
+    setUsers(mockUsers);
+  }, []);
+
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase()) ||
+      user.organization.toLowerCase().includes(search.toLowerCase())
+  );
+  
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -100,34 +116,42 @@ export default function UsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{getRoleBadge(user.role)}</TableCell>
-                    <TableCell>{user.organization}</TableCell>
-                    <TableCell>{user.lastActive}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Deactivate</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
+                    <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{getRoleBadge(user.role)}</TableCell>
+                        <TableCell>{user.organization}</TableCell>
+                        <TableCell>{user.lastActive}</TableCell>
+                        <TableCell>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Deactivate</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive">
+                                Delete
+                            </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={6} className="text-center h-24">
+                           {search ? 'No users found.' : 'No users available.'}
+                        </TableCell>
+                    </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
