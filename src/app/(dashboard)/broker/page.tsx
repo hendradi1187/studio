@@ -1,6 +1,8 @@
+
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -11,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle, AlertTriangle, PlusCircle } from 'lucide-react';
 import { brokerConnections } from '@/lib/mock-data';
 
 export default function BrokerPage() {
@@ -43,11 +45,19 @@ export default function BrokerPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold">Metadata Broker Status</h1>
-        <p className="text-muted-foreground">
-          Monitor connections and synchronization with KKKS data sources.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Metadata Broker Status</h1>
+          <p className="text-muted-foreground">
+            Monitor connections and synchronization with KKKS data sources.
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/broker/register">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Register Connector
+          </Link>
+        </Button>
       </div>
 
       <Card>
