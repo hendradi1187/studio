@@ -1,3 +1,4 @@
+
 import { SpektraLogo } from '@/components/spektra-logo';
 import * as React from 'react';
 
@@ -7,10 +8,17 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div 
+      className="flex min-h-screen items-center justify-center p-4"
+      style={{
+        backgroundImage: `url('https://spektrum-iog4.org/_assets/media/f0b9a89334c5fef85c67e09884b8d4e0.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="w-full max-w-md space-y-8 bg-card/80 backdrop-blur-sm p-6 rounded-lg">
         <div className="flex justify-center">
-            {/* The logo needs a specific implementation for dark/light themes here if needed */}
             <div className="flex items-center gap-3" >
                 <svg
                     width="28"
