@@ -1,5 +1,5 @@
 
-import { brokerConnections } from './mock-data';
+import { mockState } from './mock-data';
 // This file will contain functions to fetch data from your backend API.
 // You can replace the mock data logic in your pages with calls to these functions.
 
@@ -33,7 +33,10 @@ export async function createAsset(assetData: any) {
 
 // Example for Policies
 export async function getPolicies() {
-  return [];
+  return [
+    { id: 'policy-unrestricted', permissions: 1, prohibitions: 0, obligations: 0 },
+    { id: 'my-policy-1', permissions: 1, prohibitions: 1, obligations: 0 },
+  ];
 }
 
 export async function createPolicy(policyData: any) {
@@ -134,35 +137,50 @@ export async function getTransferHistory() {
 // Broker / Connector Management
 export function getBrokerConnections() {
     // In a real app, this would fetch from the backend.
-    return brokerConnections;
+    return mockState.brokerConnections;
 }
 
 export async function registerConnector(connectorData: { name: string, endpoint: string }) {
     console.log('Attempting to register connector with backend:', connectorData);
     
-    // In a real scenario, you would make a POST request to your backend:
-    // const response = await fetch('/api/connectors', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(connectorData),
-    // });
-    // if (!response.ok) {
-    //   throw new Error('Failed to register connector');
-    // }
-    // const data = await response.json();
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
+    // In a real scenario, you would make a POST request to your backend.
     // For now, we simulate success by adding to our mock data array.
-    // This is for demonstration purposes only and would not happen on the client-side.
     const newConnection: BrokerConnection = {
         name: connectorData.name,
         status: 'Active', // Default to active for simulation
         lastSync: new Date().toISOString().replace('T', ' ').substring(0, 19),
     };
-    brokerConnections.push(newConnection);
+    mockState.brokerConnections.push(newConnection);
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // return data;
     return { success: true };
+}
+
+export async function syncConnector(connectorName: string) {
+    console.log(`Triggering sync for ${connectorName} via backend...`);
+
+    // Simulate network delay for the sync process
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Find the connector and update its lastSync time
+    const connection = mockState.brokerConnections.find(c => c.name === connectorName);
+    if (!connection) {
+        throw new Error("Connector not found");
+    }
+
+    const updatedConnection = {
+        ...connection,
+        lastSync: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        status: 'Active' as 'Active', // Assume sync makes it active
+    };
+
+    // Update the mock data source
+    mockState.brokerConnections = mockState.brokerConnections.map(conn => 
+        conn.name === connectorName ? updatedConnection : conn
+    );
+    
+    // In a real app, this would return the result from the backend API call.
+    return updatedConnection;
 }

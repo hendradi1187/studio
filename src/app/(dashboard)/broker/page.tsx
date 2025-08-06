@@ -13,19 +13,44 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, CheckCircle, XCircle, AlertTriangle, PlusCircle } from 'lucide-react';
-import { getBrokerConnections } from '@/lib/api';
+import { RefreshCw, CheckCircle, XCircle, AlertTriangle, PlusCircle, Loader2 } from 'lucide-react';
+import { getBrokerConnections, syncConnector } from '@/lib/api';
 import type { BrokerConnection } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function BrokerPage() {
   const [connections, setConnections] = React.useState<BrokerConnection[]>([]);
+  const [syncing, setSyncing] = React.useState<string | null>(null);
+  const { toast } = useToast();
 
   React.useEffect(() => {
-    // In a real app, you'd fetch this dynamically.
-    // For now, we use the function that gets from our mock source.
     setConnections(getBrokerConnections());
   }, []);
+
+  const handleSyncNow = async (connectorName: string) => {
+    setSyncing(connectorName);
+    try {
+        const updatedConnection = await syncConnector(connectorName);
+        setConnections(prevConnections => 
+            prevConnections.map(conn => 
+                conn.name === connectorName ? updatedConnection : conn
+            )
+        );
+        toast({
+            title: "Sync Successful",
+            description: `Successfully synchronized with ${connectorName}.`
+        });
+    } catch (error) {
+        toast({
+            title: "Sync Failed",
+            description: `Could not sync with ${connectorName}.`,
+            variant: "destructive"
+        });
+    } finally {
+        setSyncing(null);
+    }
+  }
 
 
   const getStatusVisuals = (status: string) => {
@@ -81,6 +106,7 @@ export default function BrokerPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {connections.map((conn) => {
               const { icon, badge } = getStatusVisuals(conn.status);
+              const isSyncing = syncing === conn.name;
               return (
                 <Card key={conn.name} className="flex flex-col">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -98,9 +124,19 @@ export default function BrokerPage() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" size="sm" className="w-full">
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Sync Now
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => handleSyncNow(conn.name)}
+                      disabled={isSyncing}
+                    >
+                      {isSyncing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                      )}
+                      {isSyncing ? 'Syncing...' : 'Sync Now'}
                     </Button>
                   </CardFooter>
                 </Card>

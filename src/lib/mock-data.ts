@@ -121,13 +121,16 @@ export const vocabulary = [
   },
 ];
 
-export let brokerConnections = [
-  { name: 'Alpha Oil & Gas', status: 'Active', lastSync: '2024-05-21 10:00:00' },
-  { name: 'Beta Petroleum', status: 'Active', lastSync: '2024-05-21 10:05:00' },
-  { name: 'Gamma Energy', status: 'Inactive', lastSync: '2024-05-20 08:30:00' },
-  { name: 'Delta Geophysics', status: 'Active', lastSync: '2024-05-21 09:55:00' },
-  { name: 'Epsilon Resources', status: 'Error', lastSync: '2024-05-19 14:00:00' },
-];
+export const mockState = {
+  brokerConnections: [
+    { name: 'Alpha Oil & Gas', status: 'Active', lastSync: '2024-05-21 10:00:00' },
+    { name: 'Beta Petroleum', status: 'Active', lastSync: '2024-05-21 10:05:00' },
+    { name: 'Gamma Energy', status: 'Inactive', lastSync: '2024-05-20 08:30:00' },
+    { name: 'Delta Geophysics', status: 'Active', lastSync: '2024-05-21 09:55:00' },
+    { name: 'Epsilon Resources', status: 'Error', lastSync: '2024-05-19 14:00:00' },
+  ]
+};
+
 
 export const transactionLogs = [
   { id: 'log01', timestamp: '2024-05-21 09:15:23', user: 'john.doe@alphaoil.com', institution: 'Alpha Oil & Gas', action: 'Download Metadata', status: 'Success', details: 'ds002' },
