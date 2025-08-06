@@ -14,9 +14,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, CheckCircle, XCircle, AlertTriangle, PlusCircle } from 'lucide-react';
-import { brokerConnections } from '@/lib/mock-data';
+import { getBrokerConnections } from '@/lib/api';
+import type { BrokerConnection } from '@/lib/api';
+
 
 export default function BrokerPage() {
+  const [connections, setConnections] = React.useState<BrokerConnection[]>([]);
+
+  React.useEffect(() => {
+    // In a real app, you'd fetch this dynamically.
+    // For now, we use the function that gets from our mock source.
+    setConnections(getBrokerConnections());
+  }, []);
+
 
   const getStatusVisuals = (status: string) => {
     switch (status) {
@@ -69,7 +79,7 @@ export default function BrokerPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {brokerConnections.map((conn) => {
+            {connections.map((conn) => {
               const { icon, badge } = getStatusVisuals(conn.status);
               return (
                 <Card key={conn.name} className="flex flex-col">

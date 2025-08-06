@@ -121,7 +121,7 @@ export const vocabulary = [
   },
 ];
 
-export const brokerConnections = [
+export let brokerConnections = [
   { name: 'Alpha Oil & Gas', status: 'Active', lastSync: '2024-05-21 10:00:00' },
   { name: 'Beta Petroleum', status: 'Active', lastSync: '2024-05-21 10:05:00' },
   { name: 'Gamma Energy', status: 'Inactive', lastSync: '2024-05-20 08:30:00' },

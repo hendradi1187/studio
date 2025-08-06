@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -17,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ChevronRight, Info } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { registerConnector } from '@/lib/api';
 
 const FormSection = ({ title, description, children }: { title: string, description: string, children: React.ReactNode }) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
@@ -45,10 +48,54 @@ const FormField = ({ children, id, label, required = false }: { children: React.
 );
 
 export default function RegisterConnectorPage() {
+    const router = useRouter();
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = React.useState(false);
+    
+    const [name, setName] = React.useState('');
+    const [endpoint, setEndpoint] = React.useState('');
     const [authMethod, setAuthMethod] = React.useState('none');
+    const [apiKeyHeader, setApiKeyHeader] = React.useState('');
+    const [apiKeyValue, setApiKeyValue] = React.useState('');
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const connectorData = {
+            name,
+            endpoint,
+            auth: {
+                method: authMethod,
+                header: authMethod === 'api-key' ? apiKeyHeader : undefined,
+                key: authMethod === 'api-key' ? apiKeyValue : undefined,
+            },
+        };
+
+        try {
+            await registerConnector(connectorData);
+            toast({
+                title: "Connector Registered!",
+                description: `The connector "${name}" has been successfully registered.`,
+            });
+            router.push('/broker');
+        } catch (error) {
+            toast({
+                title: "Registration Failed",
+                description: "Could not register the connector. Please check the details and try again.",
+                variant: "destructive",
+            });
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancel = () => {
+        router.back();
+    }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Link href="/broker" className="hover:text-foreground">Connector Status</Link>
             <ChevronRight className="h-4 w-4" />
@@ -62,10 +109,10 @@ export default function RegisterConnectorPage() {
                 title="Connector Details" 
                 description="Provide the basic information for the new connector.">
                 <FormField id="connector-name" label="Connector Name" required>
-                    <Input id="connector-name" placeholder="e.g., Alpha Oil & Gas Connector" />
+                    <Input id="connector-name" placeholder="e.g., Alpha Oil & Gas Connector" value={name} onChange={e => setName(e.target.value)} required />
                 </FormField>
                 <FormField id="connector-endpoint" label="Connector Endpoint URL" required>
-                    <Input id="connector-endpoint" placeholder="https://connector.example.com/api/dsp" />
+                    <Input id="connector-endpoint" placeholder="https://connector.example.com/api/dsp" value={endpoint} onChange={e => setEndpoint(e.target.value)} required />
                 </FormField>
             </FormSection>
 
@@ -87,10 +134,10 @@ export default function RegisterConnectorPage() {
                 {authMethod === 'api-key' && (
                     <>
                         <FormField id="api-key-header" label="API Key Header Name" required>
-                            <Input id="api-key-header" placeholder="e.g., X-API-KEY" />
+                            <Input id="api-key-header" placeholder="e.g., X-API-KEY" value={apiKeyHeader} onChange={e => setApiKeyHeader(e.target.value)} required={authMethod === 'api-key'} />
                         </FormField>
                         <FormField id="api-key-value" label="API Key Value" required>
-                            <Input id="api-key-value" type="password" placeholder="Enter secret key..." />
+                            <Input id="api-key-value" type="password" placeholder="Enter secret key..." value={apiKeyValue} onChange={e => setApiKeyValue(e.target.value)} required={authMethod === 'api-key'} />
                         </FormField>
                     </>
                 )}
@@ -98,10 +145,12 @@ export default function RegisterConnectorPage() {
       </div>
 
        <div className="flex justify-start pt-4 gap-2 max-w-4xl">
-            <Button variant="outline">Cancel</Button>
-            <Button>Register Connector</Button>
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>Cancel</Button>
+            <Button type="submit" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Register Connector
+            </Button>
        </div>
-    </div>
+    </form>
   );
 }
-

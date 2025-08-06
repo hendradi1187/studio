@@ -1,5 +1,13 @@
+
+import { brokerConnections } from './mock-data';
 // This file will contain functions to fetch data from your backend API.
 // You can replace the mock data logic in your pages with calls to these functions.
+
+export type BrokerConnection = {
+    name: string;
+    status: 'Active' | 'Inactive' | 'Error';
+    lastSync: string;
+}
 
 // Example structure for fetching assets
 export async function getAssets() {
@@ -121,4 +129,40 @@ export async function getTransferHistory() {
             lastUpdated: '3 minutes ago',
         }
     ];
+}
+
+// Broker / Connector Management
+export function getBrokerConnections() {
+    // In a real app, this would fetch from the backend.
+    return brokerConnections;
+}
+
+export async function registerConnector(connectorData: { name: string, endpoint: string }) {
+    console.log('Attempting to register connector with backend:', connectorData);
+    
+    // In a real scenario, you would make a POST request to your backend:
+    // const response = await fetch('/api/connectors', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(connectorData),
+    // });
+    // if (!response.ok) {
+    //   throw new Error('Failed to register connector');
+    // }
+    // const data = await response.json();
+
+    // For now, we simulate success by adding to our mock data array.
+    // This is for demonstration purposes only and would not happen on the client-side.
+    const newConnection: BrokerConnection = {
+        name: connectorData.name,
+        status: 'Active', // Default to active for simulation
+        lastSync: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    };
+    brokerConnections.push(newConnection);
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // return data;
+    return { success: true };
 }
