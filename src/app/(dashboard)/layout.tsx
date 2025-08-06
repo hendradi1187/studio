@@ -183,10 +183,12 @@ const UserMenu = () => {
                 <span>Dark Mode</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-                 <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+             <DropdownMenuItem asChild>
+                <Link href="/sign-in">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                </Link>
             </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
