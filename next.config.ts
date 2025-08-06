@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'spektrum-iog4.org',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
