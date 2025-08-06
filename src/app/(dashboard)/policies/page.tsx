@@ -33,8 +33,21 @@ export default function PoliciesPage() {
   const [policies, setPolicies] = React.useState<Policy[]>([]);
   
   React.useEffect(() => {
-    getPolicies().then(data => setPolicies(data as Policy[]));
+    // In a real app, you'd fetch this from an API endpoint.
+    // getPolicies().then(data => setPolicies(data as Policy[]));
+    // For now, we use mock data to demonstrate the UI.
+    setPolicies([
+        { id: 'policy-unrestricted', permissions: 1, prohibitions: 0, obligations: 0 },
+        { id: 'my-policy-1', permissions: 1, prohibitions: 1, obligations: 0 },
+    ]);
   }, []);
+
+  const getBadge = (count: number) => {
+    if (count > 0) {
+        return <Badge variant="secondary">{count}</Badge>
+    }
+    return <Badge variant="outline">{count}</Badge>
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -78,7 +91,19 @@ export default function PoliciesPage() {
                         </TableCell>
                     </TableRow>
                 ) : (
-                  <></>
+                  policies.map((policy) => (
+                    <TableRow key={policy.id}>
+                        <TableCell className="font-medium">{policy.id}</TableCell>
+                        <TableCell>{getBadge(policy.permissions)}</TableCell>
+                        <TableCell>{getBadge(policy.prohibitions)}</TableCell>
+                        <TableCell>{getBadge(policy.obligations)}</TableCell>
+                        <TableCell>
+                            <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
