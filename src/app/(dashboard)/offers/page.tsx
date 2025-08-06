@@ -21,17 +21,22 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
+import { getDataOffers } from '@/lib/api';
 
-const dataOffers = [
-   {
-    id: 'my-data-offer',
-    assetId: 'urn:artifact:my-asset:1.0',
-    accessPolicy: 'my-policy-1',
-    contractPolicy: 'my-policy-1',
-  }
-];
+type DataOffer = {
+    id: string;
+    assetId: string;
+    accessPolicy: string;
+    contractPolicy: string;
+}
 
 export default function DataOffersPage() {
+    const [dataOffers, setDataOffers] = React.useState<DataOffer[]>([]);
+
+    React.useEffect(() => {
+        getDataOffers().then(data => setDataOffers(data as DataOffer[]));
+    }, []);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">

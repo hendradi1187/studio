@@ -38,19 +38,17 @@ import {
     ToggleGroup,
     ToggleGroupItem,
 } from "@/components/ui/toggle-group"
+import { getContracts } from '@/lib/api';
 
-
-const mockContracts = [
-  {
-    id: '0197f34c-3b31-7622-b6b4-4b303d162489',
-    assetId: 'demotest',
-    provider: 'provider',
-    consumer: 'You',
-    signedAt: 'Signed 1 minute ago',
-    terminatedAt: 'Ongoing',
-    transfers: 0,
-  },
-];
+type Contract = {
+    id: string;
+    assetId: string;
+    provider: string;
+    consumer: string;
+    signedAt: string;
+    terminatedAt: string;
+    transfers: number;
+}
 
 const FilterToggle = ({ options, defaultValue }: { options: string[], defaultValue: string }) => (
     <ToggleGroup type="single" defaultValue={defaultValue} className="border rounded-md bg-background h-10 p-1">
@@ -68,6 +66,12 @@ const FilterToggle = ({ options, defaultValue }: { options: string[], defaultVal
 
 
 export default function ContractsPage() {
+    const [contracts, setContracts] = React.useState<Contract[]>([]);
+
+    React.useEffect(() => {
+        getContracts().then(data => setContracts(data as Contract[]));
+    }, []);
+
   return (
     <div className="space-y-6 animate-fade-in">
         <h1 className="text-3xl font-bold">Contracts</h1>
@@ -99,9 +103,9 @@ export default function ContractsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockContracts.length > 0 ? (
-                  mockContracts.map((contract) => (
-                    <TableRow key={contract.id} className="cursor-pointer">
+                {contracts.length > 0 ? (
+                  contracts.map((contract) => (
+                    <TableRow key={contract.id}>
                       <TableCell>
                         <Link href={`/contracts/${contract.id}`} className="flex items-center gap-3 w-full h-full">
                           <Cloud className="h-5 w-5 text-muted-foreground" />

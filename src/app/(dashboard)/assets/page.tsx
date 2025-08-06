@@ -35,12 +35,20 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import { getAssets } from '@/lib/api';
 
-const assets: { asset: string; description: string }[] = [
-  // Mock data, will be replaced with real data
-];
+type Asset = {
+  asset: string;
+  description: string;
+}
 
 export default function AssetsPage() {
+  const [assets, setAssets] = React.useState<Asset[]>([]);
+
+  React.useEffect(() => {
+    getAssets().then(data => setAssets(data as Asset[]));
+  }, []);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">

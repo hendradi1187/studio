@@ -34,27 +34,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { getTransferHistory } from '@/lib/api';
 
-const mockTransfers = [
-    {
-        id: '0197f356-3cce-722f-b83b-0c83a3099b2e',
-        contractId: 'demotest',
-        provider: 'provider',
-        consumer: 'You',
-        state: 'STARTED',
-        lastUpdated: '19 seconds ago',
-    },
-    {
-        id: '0197f353-a21a-7eef-bd77-a82ceea2b74c',
-        contractId: 'demotest',
-        provider: 'provider',
-        consumer: 'You',
-        state: 'STARTED',
-        lastUpdated: '3 minutes ago',
-    }
-]
+type Transfer = {
+    id: string;
+    contractId: string;
+    provider: string;
+    consumer: string;
+    state: string;
+    lastUpdated: string;
+}
 
 export default function TransferHistoryPage() {
+    const [transfers, setTransfers] = React.useState<Transfer[]>([]);
+
+    React.useEffect(() => {
+        getTransferHistory().then(data => setTransfers(data as Transfer[]));
+    }, []);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -84,7 +80,7 @@ export default function TransferHistoryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockTransfers.map((transfer) => (
+                {transfers.map((transfer) => (
                   <TableRow key={transfer.id}>
                     <TableCell>
                          <div className="flex items-center gap-3">

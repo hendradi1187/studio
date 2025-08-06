@@ -21,12 +21,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
+import { getPolicies } from '@/lib/api';
 
-const policies = [
-  // Mock data, will be replaced with real data
-];
-
+type Policy = {
+    id: string;
+    permissions: number;
+    prohibitions: number;
+    obligations: number;
+}
 export default function PoliciesPage() {
+  const [policies, setPolicies] = React.useState<Policy[]>([]);
+  
+  React.useEffect(() => {
+    getPolicies().then(data => setPolicies(data as Policy[]));
+  }, []);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">

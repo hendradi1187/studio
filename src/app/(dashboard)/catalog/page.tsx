@@ -26,6 +26,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
+  Loader2,
 } from 'lucide-react';
 import {
   Select,
@@ -49,21 +50,39 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { fetchCatalog } from '@/lib/api';
 
-const mockOffers = [
-  {
-    id: 'demotest',
-    name: 'DemoTest',
-    description: 'Demo Description',
-    version: '1.0',
-    license: 'https://creativecommons.org/licenses/by/4.0/',
-    policy: 'unrestricted',
-    provider: 'provider',
-  },
-];
+type Offer = {
+    id: string;
+    name: string;
+    description: string;
+    version: string;
+    license: string;
+    policy: string;
+    provider: string;
+}
 
 export default function CatalogBrowserPage() {
     const { toast } = useToast();
+    const [offers, setOffers] = React.useState<Offer[]>([]);
+    const [endpoint, setEndpoint] = React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false);
+    
+    const handleFetchCatalog = async () => {
+        setIsLoading(true);
+        try {
+            const data = await fetchCatalog(endpoint);
+            setOffers(data as Offer[]);
+        } catch (error) {
+            toast({
+                title: "Error fetching catalog",
+                description: "Could not fetch data from the provided endpoint.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     const handleNegotiate = () => {
         toast({
@@ -85,9 +104,12 @@ export default function CatalogBrowserPage() {
                         id="connector-endpoint"
                         placeholder="Enter another Connector's Endpoint URL..."
                         className="pr-10"
+                        value={endpoint}
+                        onChange={(e) => setEndpoint(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleFetchCatalog()}
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                         <Info className="h-4 w-4 text-muted-foreground" />
+                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Info className="h-4 w-4 text-muted-foreground" />}
                     </div>
                 </div>
                 <div className="relative w-full md:w-auto md:min-w-64">
@@ -109,9 +131,18 @@ export default function CatalogBrowserPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockOffers.length > 0 ? (
-                  mockOffers.map((offer) => (
-                    <TableRow key={offer.id} className="cursor-pointer">
+                {isLoading ? (
+                     <TableRow>
+                        <TableCell colSpan={3} className="text-center h-24">
+                            <div className="flex justify-center items-center gap-2">
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                                <span>Fetching catalog...</span>
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                ) : offers.length > 0 ? (
+                  offers.map((offer) => (
+                    <TableRow key={offer.id}>
                         <TableCell className="w-1/3">
                           <Link href={`/catalog/${offer.provider}/${offer.id}`} className="flex items-center gap-3 hover:text-primary">
                             <Database className="h-5 w-5 text-muted-foreground" />
