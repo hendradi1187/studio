@@ -72,8 +72,8 @@ const NavItem = ({ href, icon: Icon, children, badgeCount }: NavItemProps) => {
         className={cn(
           'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all',
           isActive
-            ? 'bg-sky-500/20 text-white'
-            : 'text-slate-300 hover:bg-sky-500/20 hover:text-white'
+            ? 'bg-primary/10 text-primary'
+            : 'text-slate-300 hover:bg-primary/10 hover:text-primary'
         )}
       >
         <Icon className="h-4 w-4" />
@@ -141,7 +141,7 @@ const SidebarNav = () => (
 );
 
 const UserMenu = () => {
-    const { setTheme } = useTheme();
+    const { theme, setTheme } = useTheme();
 
     return (
         <DropdownMenu>
@@ -174,13 +174,9 @@ const UserMenu = () => {
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-                <Sun className="mr-2 h-4 w-4" />
-                <span>Light Mode</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-                <Moon className="mr-2 h-4 w-4" />
-                <span>Dark Mode</span>
+            <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+                <span>Toggle Theme</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
              <DropdownMenuItem asChild>
@@ -267,7 +263,7 @@ export default function DashboardLayout({
   return (
     <ThemeProvider
         attribute="class"
-        defaultTheme="system"
+        defaultTheme="dark"
         enableSystem
         disableTransitionOnChange
     >

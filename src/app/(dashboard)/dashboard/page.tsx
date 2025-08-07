@@ -65,28 +65,18 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Overview of your Connector's performance and properties.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Incoming and Outgoing Data */}
-            <Card className="shadow-subtle">
-                <CardHeader>
-                    <CardTitle>Incoming Data</CardTitle>
-                    <CardDescription>Transfer Processes</CardDescription>
-                </CardHeader>
-                <CardContent className="text-center text-muted-foreground py-10">
-                    No data
-                </CardContent>
-            </Card>
-            <Card className="shadow-subtle">
-                <CardHeader>
-                    <CardTitle>Outgoing Data</CardTitle>
-                    <CardDescription>Transfer Processes</CardDescription>
-                </CardHeader>
-                <CardContent className="text-center text-muted-foreground py-10">
-                    No data
-                </CardContent>
-            </Card>
+            
+            {/* Stats Grid */}
+            <div className="md:col-span-3 grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <StatCard title="Data Offers" value={0} />
+                <StatCard title="Assets" value={0} />
+                <StatCard title="Policies" value={1} />
+                <StatCard title="Catalogs" value={1} />
+                <StatCard title="Contract Agreements" value={0} />
+            </div>
 
             {/* SPEKTRA Connector */}
-            <Card className="lg:row-span-2 shadow-subtle">
+            <Card className="lg:col-span-1 shadow-subtle">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>SPEKTRA Connector</span>
@@ -118,18 +108,9 @@ export default function DashboardPage() {
                     </div>
                 </CardContent>
                  <CardFooter>
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-300">SKK Migas Connector</Badge>
+                    <Badge className="bg-primary/10 text-primary border-primary/20">SKK Migas Connector</Badge>
                  </CardFooter>
             </Card>
-            
-            {/* Stats Grid */}
-            <div className="md:col-span-2 grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <StatCard title="Data Offers" value={0} />
-                <StatCard title="Assets" value={0} />
-                <StatCard title="Policies" value={1} />
-                <StatCard title="Catalogs" value={1} />
-                <StatCard title="Contract Agreements" value={0} />
-            </div>
 
             {/* Connector Properties */}
             <div className="md:col-span-2">
