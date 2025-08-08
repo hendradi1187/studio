@@ -27,9 +27,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
-import { users as mockUsers } from '@/lib/mock-data'; // Renamed to avoid conflict
+import { users as mockUsers } from '@/lib/mock-data';
+import { useToast } from '@/hooks/use-toast';
 
 type User = {
     id: string;
@@ -58,11 +76,32 @@ const getRoleBadge = (role: string) => {
 export default function UsersPage() {
   const [users, setUsers] = React.useState<User[]>([]);
   const [search, setSearch] = React.useState('');
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     // Simulate fetching data from an API
     setUsers(mockUsers);
   }, []);
+
+  const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const newUser: User = {
+      id: `usr${Math.floor(Math.random() * 900) + 100}`,
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      role: formData.get('role') as string,
+      organization: formData.get('organization') as string,
+      lastActive: 'Just now',
+    };
+    setUsers([newUser, ...users]);
+    setIsDialogOpen(false);
+    toast({
+        title: "User Added!",
+        description: `Successfully added ${newUser.name} to the system.`,
+    })
+  };
 
   const filteredUsers = users.filter(
     (user) =>
@@ -78,10 +117,63 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold">User Management</h1>
           <p className="text-muted-foreground">Manage users, roles, and permissions.</p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add User
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add User
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New User</DialogTitle>
+              <DialogDescription>
+                Fill in the details below to add a new user to the system.
+              </DialogDescription>
+            </DialogHeader>
+            <form id="add-user-form" onSubmit={handleAddUser}>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input id="name" name="name" className="col-span-3" required />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">
+                    Email
+                  </Label>
+                  <Input id="email" name="email" type="email" className="col-span-3" required />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="organization" className="text-right">
+                    Organization
+                  </Label>
+                  <Input id="organization" name="organization" className="col-span-3" required />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="role" className="text-right">
+                    Role
+                  </Label>
+                   <Select name="role" required>
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Viewer">Viewer</SelectItem>
+                        <SelectItem value="KKKS">KKKS</SelectItem>
+                        <SelectItem value="Validator">Validator</SelectItem>
+                        <SelectItem value="Admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
+              </div>
+            </form>
+            <DialogFooter>
+              <Button type="submit" form="add-user-form">Save User</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
@@ -160,3 +252,4 @@ export default function UsersPage() {
     </div>
   );
 }
+
