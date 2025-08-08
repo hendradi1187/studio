@@ -17,8 +17,26 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { PlusCircle, Search, FileUp, ChevronsRight } from 'lucide-react';
 import { vocabulary } from '@/lib/mock-data';
+import { useToast } from '@/hooks/use-toast';
 
 type VocabItem = {
   term: string;
@@ -51,6 +69,28 @@ const VocabularyList: React.FC<{ items: VocabItem[] }> = ({ items }) => {
 
 export default function VocabularyPage() {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [isAddTermOpen, setIsAddTermOpen] = React.useState(false);
+  const [isUploadOpen, setIsUploadOpen] = React.useState(false);
+  const { toast } = useToast();
+
+  const handleAddTerm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const term = formData.get('term');
+    toast({
+        title: "Term Added!",
+        description: `The term "${term}" has been successfully added.`,
+    });
+    setIsAddTermOpen(false);
+  }
+
+  const handleUploadFile = () => {
+    toast({
+        title: "File Uploaded!",
+        description: "The vocabulary file has been uploaded for processing.",
+    });
+    setIsUploadOpen(false);
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -62,14 +102,74 @@ export default function VocabularyPage() {
           </p>
         </div>
         <div className="flex gap-2">
-            <Button variant="outline">
-              <FileUp className="mr-2 h-4 w-4" />
-              Upload File
-            </Button>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Term
-            </Button>
+            <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <FileUp className="mr-2 h-4 w-4" />
+                  Upload File
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Upload Vocabulary File</DialogTitle>
+                    <DialogDescription>
+                        Select a file in JSON or CSV format containing your vocabulary terms.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    <Label htmlFor="vocab-file">Vocabulary File</Label>
+                    <Input id="vocab-file" type="file" />
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsUploadOpen(false)}>Cancel</Button>
+                    <Button onClick={handleUploadFile}>Upload</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAddTermOpen} onOpenChange={setIsAddTermOpen}>
+                <DialogTrigger asChild>
+                    <Button>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Term
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add New Term</DialogTitle>
+                        <DialogDescription>
+                           Enter the details for the new vocabulary term.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form id="add-term-form" onSubmit={handleAddTerm}>
+                        <div className="grid gap-4 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="term">Term</Label>
+                                <Input id="term" name="term" placeholder="e.g., Wellbore" required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="parent-term">Parent Term (Optional)</Label>
+                                 <Select name="parent-term">
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a parent term" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">None (Root Level)</SelectItem>
+                                    <SelectItem value="geophysics">Geophysics</SelectItem>
+                                    <SelectItem value="seismic">-- Seismic</SelectItem>
+                                    <SelectItem value="geology">Geology</SelectItem>
+                                    <SelectItem value="well-data">-- Well Data</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </form>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsAddTermOpen(false)}>Cancel</Button>
+                        <Button type="submit" form="add-term-form">Save Term</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
       </div>
 
