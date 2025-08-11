@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -30,7 +31,6 @@ export default function SettingsPage() {
     toast({
       title: "Settings Saved",
       description: "Your notification preferences have been updated.",
-      className: 'bg-green-500 text-white',
     });
   };
 

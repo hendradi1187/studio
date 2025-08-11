@@ -170,10 +170,12 @@ const UserMenu = () => {
                     <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                 </Link>
             </DropdownMenuItem>
-             <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+             <DropdownMenuItem asChild>
+                <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
