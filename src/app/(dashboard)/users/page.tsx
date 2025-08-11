@@ -36,6 +36,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -73,36 +84,127 @@ const getRoleBadge = (role: string) => {
     }
 };
 
+const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave: (user: User) => void, children: React.ReactNode }) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [name, setName] = React.useState('');
+    const [email, setEmail] = React.useState('');
+    const [organization, setOrganization] = React.useState('');
+    const [role, setRole] = React.useState('');
+
+    React.useEffect(() => {
+        if (user) {
+            setName(user.name);
+            setEmail(user.email);
+            setOrganization(user.organization);
+            setRole(user.role);
+        } else {
+            setName('');
+            setEmail('');
+            setOrganization('');
+            setRole('');
+        }
+    }, [user, isOpen]);
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const savedUser = {
+            id: user ? user.id : `usr${Math.floor(Math.random() * 900) + 100}`,
+            name,
+            email,
+            role,
+            organization,
+            lastActive: user ? user.lastActive : 'Just now',
+        };
+        onSave(savedUser);
+        setIsOpen(false);
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>{user ? 'Edit User' : 'Add New User'}</DialogTitle>
+                    <DialogDescription>
+                        {user ? 'Update the details for this user.' : 'Fill in the details below to add a new user to the system.'}
+                    </DialogDescription>
+                </DialogHeader>
+                <form id="user-form" onSubmit={handleSubmit}>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">Name</Label>
+                            <Input id="name" value={name} onChange={e => setName(e.target.value)} className="col-span-3" required />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="email" className="text-right">Email</Label>
+                            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="col-span-3" required />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="organization" className="text-right">Organization</Label>
+                            <Input id="organization" value={organization} onChange={e => setOrganization(e.target.value)} className="col-span-3" required />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="role" className="text-right">Role</Label>
+                            <Select name="role" required value={role} onValueChange={setRole}>
+                                <SelectTrigger className="col-span-3">
+                                    <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Viewer">Viewer</SelectItem>
+                                    <SelectItem value="KKKS">KKKS</SelectItem>
+                                    <SelectItem value="Validator">Validator</SelectItem>
+                                    <SelectItem value="Admin">Admin</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </form>
+                <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+                    <Button type="submit" form="user-form">Save User</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+
 export default function UsersPage() {
   const [users, setUsers] = React.useState<User[]>([]);
   const [search, setSearch] = React.useState('');
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = React.useState(false);
   const [isLdapDialogOpen, setIsLdapDialogOpen] = React.useState(false);
   const { toast } = useToast();
 
   React.useEffect(() => {
-    // Simulate fetching data from an API
     setUsers(mockUsers);
   }, []);
 
-  const handleAddUser = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const newUser: User = {
-      id: `usr${Math.floor(Math.random() * 900) + 100}`,
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      role: formData.get('role') as string,
-      organization: formData.get('organization') as string,
-      lastActive: 'Just now',
-    };
-    setUsers([newUser, ...users]);
-    setIsAddUserDialogOpen(false);
-    toast({
-        title: "User Added!",
-        description: `Successfully added ${newUser.name} to the system.`,
-    })
+  const handleSaveUser = (savedUser: User) => {
+    const isEditing = users.some(u => u.id === savedUser.id);
+    if (isEditing) {
+        setUsers(users.map(u => (u.id === savedUser.id ? savedUser : u)));
+        toast({
+            title: "User Updated!",
+            description: `Successfully updated ${savedUser.name}.`,
+        });
+    } else {
+        setUsers([savedUser, ...users]);
+        toast({
+            title: "User Added!",
+            description: `Successfully added ${savedUser.name} to the system.`,
+        });
+    }
   };
+
+  const handleDeleteUser = (userId: string) => {
+    const userToDelete = users.find(u => u.id === userId);
+    setUsers(users.filter(u => u.id !== userId));
+    toast({
+        title: "User Deleted",
+        description: `User ${userToDelete?.name} has been removed.`,
+        variant: "destructive",
+    })
+  }
   
   const handleTestLdap = () => {
       toast({
@@ -179,64 +281,13 @@ export default function UsersPage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-
-            <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
-              <DialogTrigger asChild>
+            
+            <UserFormDialog onSave={handleSaveUser}>
                 <Button>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add User
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Add New User</DialogTitle>
-                  <DialogDescription>
-                    Fill in the details below to add a new user to the system.
-                  </DialogDescription>
-                </DialogHeader>
-                <form id="add-user-form" onSubmit={handleAddUser}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="name" className="text-right">
-                        Name
-                      </Label>
-                      <Input id="name" name="name" className="col-span-3" required />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="email" className="text-right">
-                        Email
-                      </Label>
-                      <Input id="email" name="email" type="email" className="col-span-3" required />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="organization" className="text-right">
-                        Organization
-                      </Label>
-                      <Input id="organization" name="organization" className="col-span-3" required />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="role" className="text-right">
-                        Role
-                      </Label>
-                       <Select name="role" required>
-                          <SelectTrigger className="col-span-3">
-                            <SelectValue placeholder="Select a role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Viewer">Viewer</SelectItem>
-                            <SelectItem value="KKKS">KKKS</SelectItem>
-                            <SelectItem value="Validator">Validator</SelectItem>
-                            <SelectItem value="Admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                    </div>
-                  </div>
-                </form>
-                <DialogFooter>
-                  <Button type="submit" form="add-user-form">Save User</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            </UserFormDialog>
         </div>
       </div>
 
@@ -289,13 +340,33 @@ export default function UsersPage() {
                             </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>Deactivate</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
-                                Delete
-                            </DropdownMenuItem>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <UserFormDialog user={user} onSave={handleSaveUser}>
+                                    <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                                        Edit
+                                    </button>
+                                </UserFormDialog>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-destructive">
+                                            Delete
+                                        </button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the user account for {user.name}.
+                                        </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                            Delete
+                                        </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </DropdownMenuContent>
                         </DropdownMenu>
                         </TableCell>
@@ -317,3 +388,4 @@ export default function UsersPage() {
   );
 }
 
+    
