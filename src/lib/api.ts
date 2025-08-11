@@ -50,11 +50,7 @@ export async function getPolicies() {
     const response = await fetch('/api/policies');
     if (!response.ok) {
         console.error("Failed to fetch policies");
-        // Return mock data on failure to prevent UI crash during development
-        return [
-            { id: 'policy-unrestricted', permissions: 1, prohibitions: 0, obligations: 0 },
-            { id: 'my-policy-1', permissions: 1, prohibitions: 1, obligations: 0 },
-        ];
+        return [];
     }
     return response.json();
 }
@@ -121,12 +117,17 @@ export async function deleteDataOffer(offerId: string) {
 
 // ================== Users API ==================
 export async function getUsers() {
-    const response = await fetch('/api/users');
-    if (!response.ok) {
-        console.error("Failed to fetch users");
+    try {
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+            console.error("Failed to fetch users");
+            return [];
+        }
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching users:", error);
         return [];
     }
-    return response.json();
 }
 
 export async function saveUser(userData: any) {
@@ -163,50 +164,74 @@ export async function deleteUser(userId: string) {
 export async function fetchCatalog(connectorEndpoint: string) {
     console.log('Fetching catalog for:', connectorEndpoint);
     if (!connectorEndpoint) return [];
-    // In a real app, this would use the connectorEndpoint to fetch data.
-    const response = await fetch(`/api/catalog?endpoint=${encodeURIComponent(connectorEndpoint)}`);
-    if (!response.ok) {
-        console.error("Failed to fetch catalog");
+    try {
+        const response = await fetch(`/api/catalog?endpoint=${encodeURIComponent(connectorEndpoint)}`);
+        if (!response.ok) {
+            console.error("Failed to fetch catalog");
+            return [];
+        }
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching catalog:", error);
         return [];
     }
-    return response.json();
 }
 
 export async function getContracts() {
-    const response = await fetch('/api/contracts');
-    if (!response.ok) {
-        console.error("Failed to fetch contracts");
+    try {
+        const response = await fetch('/api/contracts');
+        if (!response.ok) {
+            console.error("Failed to fetch contracts");
+            return [];
+        }
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching contracts:", error);
         return [];
     }
-    return response.json();
 }
 
 export async function getContractDetails(id: string) {
-    console.log('Fetching contract details for:', id);
-    const response = await fetch(`/api/contracts/${id}`);
-    if (!response.ok) {
-        throw new Error('Failed to get contract details');
+    try {
+        console.log('Fetching contract details for:', id);
+        const response = await fetch(`/api/contracts/${id}`);
+        if (!response.ok) {
+            throw new Error('Failed to get contract details');
+        }
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching contract details:", error);
+        return null;
     }
-    return response.json();
 }
 
 export async function getTransferHistory() {
-     const response = await fetch('/api/transfers');
-     if (!response.ok) {
-        console.error("Failed to fetch transfer history");
+     try {
+        const response = await fetch('/api/transfers');
+        if (!response.ok) {
+            console.error("Failed to fetch transfer history");
+            return [];
+        }
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching transfer history:", error);
         return [];
     }
-    return response.json();
 }
 
 // Broker / Connector Management
 export async function getBrokerConnections() {
-    const response = await fetch('/api/broker/connections');
-    if (!response.ok) {
-        console.error("Failed to fetch broker connections");
+    try {
+        const response = await fetch('/api/broker/connections');
+        if (!response.ok) {
+            console.error("Failed to fetch broker connections");
+            return [];
+        }
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching broker connections:", error);
         return [];
     }
-    return response.json();
 }
 
 export async function registerConnector(connectorData: { name: string, endpoint: string }) {
