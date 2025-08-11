@@ -6,6 +6,10 @@ import Link from 'next/link';
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,23 +24,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ChevronRight, PlusCircle, Info } from 'lucide-react';
+import { ChevronRight, PlusCircle, Info, File, Settings, ChevronLeft, CheckCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const FormSection = ({ title, description, children }: { title: string, description: string, children: React.ReactNode }) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-1">
-        <h3 className="text-lg font-medium">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <div className="md:col-span-2">
-        <Card>
-          <CardContent className="p-6 space-y-6">
-            {children}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-);
+
+const steps = [
+  { id: '01', name: 'Offer Type', icon: File },
+  { id: '02', name: 'Data Source', icon: Settings },
+  { id: '03', name: 'General Information', icon: Info },
+];
 
 const FormField = ({ children }: { children: React.ReactNode }) => (
     <div className="space-y-2">{children}</div>
@@ -49,115 +45,110 @@ const LabelWithInfo = ({ htmlFor, children }: { htmlFor: string, children: React
   </div>
 )
 
-const CheckboxWithLabel = ({ id, label, description }: { id: string, label: string, description: string }) => (
-    <div className="flex items-start gap-4">
-        <Checkbox id={id} className="mt-1" />
-        <div className="grid gap-1.5 leading-none">
-            <label
-                htmlFor={id}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-                {label}
-            </label>
-            <p className="text-sm text-muted-foreground">
-                {description}
-            </p>
-        </div>
-    </div>
-)
-
-
-export default function NewAssetPage() {
-  const [offerType, setOfferType] = React.useState('available');
-
-  return (
-    <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/assets" className="hover:text-foreground">Assets</Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-foreground">New Asset</span>
-        </div>
-
-      <div className="space-y-8">
-        <FormSection title="Data offer type" description="Define the type of your offer">
-            <FormField>
-                <Label>Offer Type</Label>
-                <RadioGroup value={offerType} onValueChange={setOfferType}>
-                    <div className="flex items-center space-x-2">
+const Step1_OfferType = ({ offerType, setOfferType }: { offerType: string, setOfferType: (value: string) => void }) => (
+    <Card>
+        <CardHeader>
+            <CardTitle>Data Offer Type</CardTitle>
+            <CardDescription>Define the type of your offer. This will determine the next steps.</CardDescription>
+        </CardHeader>
+        <CardContent>
+             <FormField>
+                <RadioGroup value={offerType} onValueChange={setOfferType} className="gap-4">
+                    <Label htmlFor="available" className="flex items-center space-x-3 p-4 border rounded-md has-[:checked]:border-primary has-[:checked]:bg-primary/5 cursor-pointer">
                         <RadioGroupItem value="available" id="available" />
-                        <Label htmlFor="available">Available (with data source)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
+                        <div>
+                             <p className="font-medium">Available (with data source)</p>
+                             <p className="text-sm text-muted-foreground">The data is directly accessible via an endpoint.</p>
+                        </div>
+                    </Label>
+                    <Label htmlFor="on-request" className="flex items-center space-x-3 p-4 border rounded-md has-[:checked]:border-primary has-[:checked]:bg-primary/5 cursor-pointer">
                         <RadioGroupItem value="on-request" id="on-request" />
-                        <Label htmlFor="on-request">On Request (without data source)</Label>
-                    </div>
+                         <div>
+                             <p className="font-medium">On Request (without data source)</p>
+                             <p className="text-sm text-muted-foreground">The data will be provided after a negotiation process.</p>
+                        </div>
+                    </Label>
                 </RadioGroup>
             </FormField>
+        </CardContent>
+    </Card>
+);
 
-            {offerType === 'available' && (
-                <>
-                <FormField>
-                  <Label htmlFor="type">Type</Label>
-                  <Select defaultValue="rest-api">
-                    <SelectTrigger id="type">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="rest-api">REST-API Endpoint</SelectItem>
-                      <SelectItem value="custom">Custom Datasource</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormField>
+const Step2_DataSource = () => (
+    <Card>
+        <CardHeader>
+            <CardTitle>Data Source Configuration</CardTitle>
+            <CardDescription>Provide the technical details for accessing the data source.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <FormField>
+                <Label htmlFor="type">Type</Label>
+                <Select defaultValue="rest-api">
+                <SelectTrigger id="type">
+                    <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="rest-api">REST-API Endpoint</SelectItem>
+                    <SelectItem value="custom">Custom Datasource</SelectItem>
+                </SelectContent>
+                </Select>
+            </FormField>
 
-                <FormField>
-                  <Label htmlFor="method">Method</Label>
-                   <Select defaultValue="get">
-                    <SelectTrigger id="method">
-                      <SelectValue placeholder="Select method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="get">GET</SelectItem>
-                      <SelectItem value="post">POST</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormField>
+            <FormField>
+                <Label htmlFor="method">Method</Label>
+                <Select defaultValue="get">
+                <SelectTrigger id="method">
+                    <SelectValue placeholder="Select method" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="get">GET</SelectItem>
+                    <SelectItem value="post">POST</SelectItem>
+                </SelectContent>
+                </Select>
+            </FormField>
 
-                <FormField>
-                  <LabelWithInfo htmlFor="url">URL *</LabelWithInfo>
-                  <Input id="url" placeholder="https://my-data-source.com/api" />
-                </FormField>
+            <FormField>
+                <LabelWithInfo htmlFor="url">URL *</LabelWithInfo>
+                <Input id="url" placeholder="https://my-data-source.com/api" />
+            </FormField>
 
-                <FormField>
-                  <Label>Query Params</Label>
-                  <Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add Pair</Button>
-                </FormField>
+            <FormField>
+                <Label>Query Params</Label>
+                <Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add Pair</Button>
+            </FormField>
 
-                <FormField>
-                  <Label htmlFor="auth">Authentication</Label>
-                  <Select defaultValue="none">
-                    <SelectTrigger id="auth">
-                      <SelectValue placeholder="Select authentication" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="header-value">Header with Value</SelectItem>
-                      <SelectItem value="header-vault">Header with Vault Secret</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormField>
-                
-                 <FormField>
-                  <Label>Additional Headers</Label>
-                  <Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add Pair</Button>
-                </FormField>
-              </>
-            )}
-        </FormSection>
+            <FormField>
+                <Label htmlFor="auth">Authentication</Label>
+                <Select defaultValue="none">
+                <SelectTrigger id="auth">
+                    <SelectValue placeholder="Select authentication" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="header-value">Header with Value</SelectItem>
+                    <SelectItem value="header-vault">Header with Vault Secret</SelectItem>
+                </SelectContent>
+                </Select>
+            </FormField>
+            
+            <FormField>
+                <Label>Additional Headers</Label>
+                <Button variant="outline" size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add Pair</Button>
+            </FormField>
+        </CardContent>
+    </Card>
+);
 
-        <FormSection title="General Information" description="Provide metadata for your asset.">
+const Step3_GeneralInfo = () => (
+    <Card>
+        <CardHeader>
+            <CardTitle>General Information</CardTitle>
+            <CardDescription>Provide metadata for your asset. This information will be visible to others.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
             <FormField>
                 <LabelWithInfo htmlFor="title">Title *</LabelWithInfo>
-                <Input id="title" placeholder="My Asset" />
+                <Input id="title" placeholder="e.g., Well Log Data for Block C" />
             </FormField>
             
             <FormField>
@@ -167,44 +158,127 @@ export default function NewAssetPage() {
 
             <FormField>
                 <LabelWithInfo htmlFor="description">Description</LabelWithInfo>
-                <Textarea id="description" placeholder="# My Asset..." />
+                <Textarea id="description" placeholder="A brief summary of the asset, its contents, and purpose." />
             </FormField>
 
             <FormField>
                 <LabelWithInfo htmlFor="keywords">Keywords</LabelWithInfo>
-                <Input id="keywords" placeholder="Add keyword..." />
+                <Input id="keywords" placeholder="e.g., Seismic, Well Log, Geochemistry" />
             </FormField>
 
-             <FormField>
+            <FormField>
                 <LabelWithInfo htmlFor="version">Version</LabelWithInfo>
-                <Input id="version" placeholder="1.0" />
+                <Input id="version" placeholder="1.0.0" />
             </FormField>
             
-             <FormField>
+            <FormField>
                 <LabelWithInfo htmlFor="language">Language</LabelWithInfo>
                 <Input id="language" placeholder="English" />
             </FormField>
             
-             <FormField>
+            <FormField>
                 <LabelWithInfo htmlFor="content-type">Content Type</LabelWithInfo>
                 <Input id="content-type" placeholder="application/json" />
             </FormField>
+        </CardContent>
+    </Card>
+);
 
-            <div className="flex items-center space-x-2">
-                <Checkbox id="advanced-fields" />
-                <label
-                    htmlFor="advanced-fields"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+
+export default function NewAssetPage() {
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const [offerType, setOfferType] = React.useState('available');
+
+  const finalStepIndex = offerType === 'available' ? steps.length - 1 : steps.length - 2;
+
+  const handleNext = () => {
+    if (currentStep < finalStepIndex) {
+        // Skip step 2 if offer type is 'on-request'
+        if (currentStep === 0 && offerType === 'on-request') {
+             setCurrentStep(currentStep + 2);
+        } else {
+            setCurrentStep(currentStep + 1);
+        }
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+        // Handle jumping back from step 3 to 1 if offer type was 'on-request'
+         if (currentStep === 2 && offerType === 'on-request') {
+             setCurrentStep(currentStep - 2);
+        } else {
+            setCurrentStep(currentStep - 1);
+        }
+    }
+  };
+
+  const StepIndicator = () => (
+    <nav aria-label="Progress">
+      <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+        {steps.map((step, index) => {
+          if (offerType === 'on-request' && step.name === 'Data Source') return null;
+
+          const isCompleted = currentStep > index;
+          const isCurrent = currentStep === index;
+          
+          return (
+            <li key={step.name} className="md:flex-1">
+                <div
+                  className={cn(
+                    'group flex flex-col border-l-4 py-2 pl-4 md:border-l-0 md:border-t-4 md:pl-0 md:pt-4 md:pb-0',
+                    isCompleted ? 'border-primary' : (isCurrent ? 'border-primary' : 'border-border'),
+                  )}
                 >
-                    Show Advanced Fields
-                </label>
-            </div>
-        </FormSection>
+                  <span className={cn('text-sm font-medium', isCompleted ? 'text-primary' : (isCurrent ? 'text-primary' : 'text-muted-foreground'))}>
+                    {step.id}
+                  </span>
+                  <span className="text-sm font-medium">{step.name}</span>
+                </div>
+            </li>
+          )
+        })}
+      </ol>
+    </nav>
+  );
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div>
+        <h1 className="text-3xl font-bold">Create New Asset</h1>
+        <p className="text-muted-foreground">Follow the steps to define and publish a new data asset.</p>
+      </div>
+      
+      <StepIndicator />
+
+      <div className="mt-8">
+        {currentStep === 0 && <Step1_OfferType offerType={offerType} setOfferType={setOfferType} />}
+        {currentStep === 1 && offerType === 'available' && <Step2_DataSource />}
+        {currentStep === 2 && <Step3_GeneralInfo />}
       </div>
 
-       <div className="flex justify-end pt-4 gap-2">
-            <Button variant="outline">Cancel</Button>
-            <Button>Create</Button>
+       <div className="flex justify-between pt-4 gap-2">
+            <div>
+              {currentStep > 0 && (
+                <Button variant="outline" onClick={handleBack}>
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Back
+                </Button>
+              )}
+            </div>
+            <div>
+                 {currentStep < finalStepIndex ? (
+                    <Button onClick={handleNext}>
+                        Next
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                 ) : (
+                    <Button>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Create Asset
+                    </Button>
+                 )}
+            </div>
        </div>
     </div>
   );
