@@ -6,6 +6,9 @@ import Link from 'next/link';
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,51 +20,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, CheckCircle, ChevronLeft, FileSignature, Database, ShieldCheck } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const FormSection = ({ title, description, children }: { title: string, description: string, children: React.ReactNode }) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-      <div className="md:col-span-1">
-        <h3 className="text-lg font-medium">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <div className="md:col-span-2">
-        <div className="space-y-6">
-            {children}
-        </div>
-      </div>
-    </div>
-);
+const steps = [
+  { id: '01', name: 'Offer Details', icon: FileSignature },
+  { id: '02', name: 'Select Assets', icon: Database },
+  { id: '03', name: 'Define Policies', icon: ShieldCheck },
+];
 
-const FormField = ({ children, id, label }: { children: React.ReactNode, id: string, label: string }) => (
+const FormField = ({ children, id, label, required = false }: { children: React.ReactNode, id: string, label: string, required?: boolean }) => (
     <div className="space-y-2">
-        <Label htmlFor={id}>{label}</Label>
+        <Label htmlFor={id}>{label}{required && ' *'}</Label>
         {children}
     </div>
 );
 
-export default function PublishDataOfferPage() {
-  return (
-    <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/offers" className="hover:text-foreground">Data Offers</Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-foreground">Publish Data Offer</span>
-        </div>
-
-      <div className="space-y-8 max-w-4xl">
-        <FormSection 
-            title="Data Offer" 
-            description="Choose an identifier by which data exchange partners can recognize this data offer">
-            <FormField id="data-offer-id" label="Data Offer ID *">
-                <Input id="data-offer-id" placeholder="my-data-offer" />
+const Step1_OfferDetails = () => (
+    <Card>
+        <CardHeader>
+            <CardTitle>Data Offer Details</CardTitle>
+            <CardDescription>Choose an identifier by which data exchange partners can recognize this data offer.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <FormField id="data-offer-id" label="Data Offer ID" required>
+                <Input id="data-offer-id" placeholder="e.g., my-seismic-data-offer-q1" />
             </FormField>
-        </FormSection>
+        </CardContent>
+    </Card>
+);
 
-        <FormSection 
-            title="Assets" 
-            description="Select the assets you want to be published as a data offer">
-            <FormField id="assets" label="Assets *">
+const Step2_SelectAssets = () => (
+    <Card>
+        <CardHeader>
+            <CardTitle>Select Assets</CardTitle>
+            <CardDescription>Select the assets you want to publish as part of this data offer.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <FormField id="assets" label="Assets" required>
                  <Select>
                     <SelectTrigger id="assets">
                       <SelectValue placeholder="Select items..." />
@@ -72,12 +68,18 @@ export default function PublishDataOfferPage() {
                     </SelectContent>
                   </Select>
             </FormField>
-        </FormSection>
+        </CardContent>
+    </Card>
+);
 
-        <FormSection 
-            title="Policies" 
-            description="Select the access and the contract policy for this data offer.The access policy determines which partners will be able to see the offer in your catalogwhile the usage policy determines which partners can consume it">
-            <FormField id="access-policy" label="Access Policy *">
+const Step3_DefinePolicies = () => (
+    <Card>
+        <CardHeader>
+            <CardTitle>Define Policies</CardTitle>
+            <CardDescription>Select the access and contract policies. Access policy determines who can see the offer, while usage policy determines who can consume it.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <FormField id="access-policy" label="Access Policy" required>
                  <Select>
                     <SelectTrigger id="access-policy">
                       <SelectValue placeholder="Select policy..." />
@@ -88,7 +90,7 @@ export default function PublishDataOfferPage() {
                     </SelectContent>
                   </Select>
             </FormField>
-            <FormField id="contract-policy" label="Contract Policy *">
+            <FormField id="contract-policy" label="Contract Policy" required>
                  <Select>
                     <SelectTrigger id="contract-policy">
                       <SelectValue placeholder="Select policy..." />
@@ -99,11 +101,95 @@ export default function PublishDataOfferPage() {
                     </SelectContent>
                   </Select>
             </FormField>
-        </FormSection>
-      </div>
+        </CardContent>
+    </Card>
+);
 
-       <div className="flex justify-start pt-4 max-w-4xl">
-            <Button>Create Data Offer</Button>
+
+export default function PublishDataOfferPage() {
+    const [currentStep, setCurrentStep] = React.useState(0);
+
+    const handleNext = () => {
+        if (currentStep < steps.length - 1) {
+            setCurrentStep(currentStep + 1);
+        }
+    };
+
+    const handleBack = () => {
+        if (currentStep > 0) {
+            setCurrentStep(currentStep - 1);
+        }
+    };
+
+    const StepIndicator = () => (
+        <nav aria-label="Progress">
+          <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+            {steps.map((step, index) => {
+              const isCompleted = currentStep > index;
+              const isCurrent = currentStep === index;
+              
+              return (
+                <li key={step.name} className="md:flex-1">
+                    <div
+                      className={cn(
+                        'group flex flex-col border-l-4 py-2 pl-4 md:border-l-0 md:border-t-4 md:pl-0 md:pt-4 md:pb-0',
+                        isCompleted ? 'border-primary' : (isCurrent ? 'border-primary' : 'border-border'),
+                      )}
+                    >
+                      <span className={cn('text-sm font-medium', isCompleted ? 'text-primary' : (isCurrent ? 'text-primary' : 'text-muted-foreground'))}>
+                        {step.id}
+                      </span>
+                      <span className="text-sm font-medium">{step.name}</span>
+                    </div>
+                </li>
+              )
+            })}
+          </ol>
+        </nav>
+      );
+
+  return (
+    <div className="space-y-8 animate-fade-in max-w-4xl">
+        <div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                <Link href="/offers" className="hover:text-foreground">Data Offers</Link>
+                <ChevronRight className="h-4 w-4" />
+                <span className="text-foreground">Publish Data Offer</span>
+            </div>
+            <h1 className="text-3xl font-bold">Publish New Data Offer</h1>
+            <p className="text-muted-foreground">Follow the steps to publish a new data offer.</p>
+        </div>
+      
+        <StepIndicator />
+
+        <div className="mt-8">
+            {currentStep === 0 && <Step1_OfferDetails />}
+            {currentStep === 1 && <Step2_SelectAssets />}
+            {currentStep === 2 && <Step3_DefinePolicies />}
+        </div>
+        
+        <div className="flex justify-between pt-4 gap-2">
+            <div>
+              {currentStep > 0 && (
+                <Button variant="outline" onClick={handleBack}>
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Back
+                </Button>
+              )}
+            </div>
+            <div>
+                 {currentStep < steps.length - 1 ? (
+                    <Button onClick={handleNext}>
+                        Next
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                 ) : (
+                    <Button>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Create Data Offer
+                    </Button>
+                 )}
+            </div>
        </div>
     </div>
   );
