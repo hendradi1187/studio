@@ -45,7 +45,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search, Link as LinkIcon } from 'lucide-react';
 import { users as mockUsers } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 
@@ -76,7 +76,8 @@ const getRoleBadge = (role: string) => {
 export default function UsersPage() {
   const [users, setUsers] = React.useState<User[]>([]);
   const [search, setSearch] = React.useState('');
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = React.useState(false);
+  const [isLdapDialogOpen, setIsLdapDialogOpen] = React.useState(false);
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -96,12 +97,28 @@ export default function UsersPage() {
       lastActive: 'Just now',
     };
     setUsers([newUser, ...users]);
-    setIsDialogOpen(false);
+    setIsAddUserDialogOpen(false);
     toast({
         title: "User Added!",
         description: `Successfully added ${newUser.name} to the system.`,
     })
   };
+  
+  const handleTestLdap = () => {
+      toast({
+          title: "Testing Connection...",
+          description: "A test connection to the LDAP server was initiated."
+      })
+  }
+
+  const handleSaveLdap = (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      toast({
+          title: "Configuration Saved",
+          description: "LDAP configuration has been saved successfully."
+      });
+      setIsLdapDialogOpen(false);
+  }
 
   const filteredUsers = users.filter(
     (user) =>
@@ -117,63 +134,110 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold">User Management</h1>
           <p className="text-muted-foreground">Manage users, roles, and permissions.</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add User
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>
-                Fill in the details below to add a new user to the system.
-              </DialogDescription>
-            </DialogHeader>
-            <form id="add-user-form" onSubmit={handleAddUser}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input id="name" name="name" className="col-span-3" required />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="email" className="text-right">
-                    Email
-                  </Label>
-                  <Input id="email" name="email" type="email" className="col-span-3" required />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="organization" className="text-right">
-                    Organization
-                  </Label>
-                  <Input id="organization" name="organization" className="col-span-3" required />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="role" className="text-right">
-                    Role
-                  </Label>
-                   <Select name="role" required>
-                      <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Viewer">Viewer</SelectItem>
-                        <SelectItem value="KKKS">KKKS</SelectItem>
-                        <SelectItem value="Validator">Validator</SelectItem>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                </div>
-              </div>
-            </form>
-            <DialogFooter>
-              <Button type="submit" form="add-user-form">Save User</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+            <Dialog open={isLdapDialogOpen} onOpenChange={setIsLdapDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Connect LDAP
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>LDAP Configuration</DialogTitle>
+                  <DialogDescription>
+                    Configure an optional LDAP connection to sync users.
+                  </DialogDescription>
+                </DialogHeader>
+                <form id="ldap-config-form" onSubmit={handleSaveLdap}>
+                  <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="ldap-url">Server URL</Label>
+                      <Input id="ldap-url" name="ldap-url" placeholder="ldap://your-server.com:389" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="bind-dn">Bind DN</Label>
+                      <Input id="bind-dn" name="bind-dn" placeholder="cn=admin,dc=example,dc=com" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="bind-pw">Bind Password</Label>
+                      <Input id="bind-pw" name="bind-pw" type="password" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="base-dn">Base DN</Label>
+                      <Input id="base-dn" name="base-dn" placeholder="ou=users,dc=example,dc=com" required />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="user-filter">User Search Filter</Label>
+                      <Input id="user-filter" name="user-filter" placeholder="(objectClass=inetOrgPerson)" required />
+                    </div>
+                  </div>
+                </form>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={handleTestLdap}>Test Connection</Button>
+                  <Button type="submit" form="ldap-config-form">Save & Sync</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add User
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add New User</DialogTitle>
+                  <DialogDescription>
+                    Fill in the details below to add a new user to the system.
+                  </DialogDescription>
+                </DialogHeader>
+                <form id="add-user-form" onSubmit={handleAddUser}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">
+                        Name
+                      </Label>
+                      <Input id="name" name="name" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="email" className="text-right">
+                        Email
+                      </Label>
+                      <Input id="email" name="email" type="email" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="organization" className="text-right">
+                        Organization
+                      </Label>
+                      <Input id="organization" name="organization" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="role" className="text-right">
+                        Role
+                      </Label>
+                       <Select name="role" required>
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Viewer">Viewer</SelectItem>
+                            <SelectItem value="KKKS">KKKS</SelectItem>
+                            <SelectItem value="Validator">Validator</SelectItem>
+                            <SelectItem value="Admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                    </div>
+                  </div>
+                </form>
+                <DialogFooter>
+                  <Button type="submit" form="add-user-form">Save User</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+        </div>
       </div>
 
       <Card>
