@@ -5,9 +5,6 @@ import * as React from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,10 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { getDataOffers } from '@/lib/api';
+import { getDataOffers, deleteDataOffer } from '@/lib/api';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,20 +47,47 @@ type DataOffer = {
 
 export default function DataOffersPage() {
     const [dataOffers, setDataOffers] = React.useState<DataOffer[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
     const { toast } = useToast();
 
     React.useEffect(() => {
-        getDataOffers().then(data => setDataOffers(data as DataOffer[]));
+        fetchDataOffers();
     }, []);
+
+    const fetchDataOffers = async () => {
+        setIsLoading(true);
+        try {
+            const data = await getDataOffers();
+            setDataOffers(data as DataOffer[]);
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Could not fetch data offers.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
     
-    const handleDeleteOffer = (offerId: string) => {
+    const handleDeleteOffer = async (offerId: string) => {
         const offerToDelete = dataOffers.find(o => o.id === offerId);
-        setDataOffers(dataOffers.filter(o => o.id !== offerId));
-        toast({
-            title: "Data Offer Deleted",
-            description: `The offer "${offerToDelete?.id}" has been removed.`,
-            variant: "destructive",
-        })
+        if (!offerToDelete) return;
+        
+        try {
+            await deleteDataOffer(offerId);
+            setDataOffers(dataOffers.filter(o => o.id !== offerId));
+            toast({
+                title: "Data Offer Deleted",
+                description: `The offer "${offerToDelete?.id}" has been removed.`,
+            })
+        } catch (error) {
+             toast({
+                title: "Error",
+                description: `Could not delete data offer "${offerToDelete?.id}".`,
+                variant: "destructive",
+            });
+        }
     }
 
 
@@ -99,7 +122,13 @@ export default function DataOffersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dataOffers.length === 0 ? (
+                {isLoading ? (
+                    <TableRow>
+                        <TableCell colSpan={5} className="text-center h-24">
+                            <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                        </TableCell>
+                    </TableRow>
+                ) : dataOffers.length === 0 ? (
                     <TableRow>
                         <TableCell colSpan={5} className="text-center h-24">
                             No data offers found.
@@ -113,41 +142,41 @@ export default function DataOffersPage() {
                       <TableCell>{offer.accessPolicy}</TableCell>
                       <TableCell>{offer.contractPolicy}</TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button aria-haspopup="true" size="icon" variant="ghost">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Toggle menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/offers/create">Edit</Link>
-                                </DropdownMenuItem>
-                                <AlertDialog>
+                        <AlertDialog>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                        <span className="sr-only">Toggle menu</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={`/offers/create?edit=${offer.id}`}>Edit</Link>
+                                    </DropdownMenuItem>
                                     <AlertDialogTrigger asChild>
                                             <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-destructive">
                                             Delete
                                         </button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This action cannot be undone. This will permanently delete the data offer "{offer.id}".
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDeleteOffer(offer.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                                Delete
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                             <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete the data offer "{offer.id}".
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteOffer(offer.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                       </TableCell>
                     </TableRow>
                   ))

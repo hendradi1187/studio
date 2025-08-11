@@ -24,7 +24,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -56,8 +55,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle, Search, Link as LinkIcon } from 'lucide-react';
-import { users as mockUsers } from '@/lib/mock-data';
+import { MoreHorizontal, PlusCircle, Search, Link as LinkIcon, Loader2 } from 'lucide-react';
+import { getUsers, saveUser, deleteUser } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 type User = {
@@ -84,20 +83,24 @@ const getRoleBadge = (role: string) => {
     }
 };
 
-const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave: (user: User) => void, children: React.ReactNode }) => {
+const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave: (isEditing: boolean) => void, children: React.ReactNode }) => {
+    const { toast } = useToast();
     const [isOpen, setIsOpen] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(false);
+    
+    // Form state
     const [name, setName] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [organization, setOrganization] = React.useState('');
     const [role, setRole] = React.useState('');
 
     React.useEffect(() => {
-        if (user) {
+        if (user && isOpen) {
             setName(user.name);
             setEmail(user.email);
             setOrganization(user.organization);
             setRole(user.role);
-        } else {
+        } else if (!isOpen) { // Reset form on close
             setName('');
             setEmail('');
             setOrganization('');
@@ -105,18 +108,35 @@ const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave
         }
     }, [user, isOpen]);
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const savedUser = {
-            id: user ? user.id : `usr${Math.floor(Math.random() * 900) + 100}`,
+        setIsLoading(true);
+
+        const userData = {
+            id: user ? user.id : undefined,
             name,
             email,
             role,
             organization,
-            lastActive: user ? user.lastActive : 'Just now',
         };
-        onSave(savedUser);
-        setIsOpen(false);
+
+        try {
+            await saveUser(userData);
+            toast({
+                title: user ? "User Updated!" : "User Added!",
+                description: `Successfully ${user ? 'updated' : 'added'} ${name}.`,
+            });
+            onSave(!!user);
+            setIsOpen(false);
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Could not save user. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -160,8 +180,11 @@ const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave
                     </div>
                 </form>
                 <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                    <Button type="submit" form="user-form">Save User</Button>
+                    <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>Cancel</Button>
+                    <Button type="submit" form="user-form" disabled={isLoading}>
+                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save User
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -171,39 +194,55 @@ const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave
 
 export default function UsersPage() {
   const [users, setUsers] = React.useState<User[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
   const [isLdapDialogOpen, setIsLdapDialogOpen] = React.useState(false);
   const { toast } = useToast();
 
   React.useEffect(() => {
-    setUsers(mockUsers);
+    fetchUsers();
   }, []);
+  
+  const fetchUsers = async () => {
+      setIsLoading(true);
+      try {
+          const data = await getUsers();
+          setUsers(data);
+      } catch (error) {
+           toast({
+              title: "Error",
+              description: "Could not fetch users.",
+              variant: "destructive",
+          });
+      } finally {
+          setIsLoading(false);
+      }
+  }
 
-  const handleSaveUser = (savedUser: User) => {
-    const isEditing = users.some(u => u.id === savedUser.id);
-    if (isEditing) {
-        setUsers(users.map(u => (u.id === savedUser.id ? savedUser : u)));
-        toast({
-            title: "User Updated!",
-            description: `Successfully updated ${savedUser.name}.`,
-        });
-    } else {
-        setUsers([savedUser, ...users]);
-        toast({
-            title: "User Added!",
-            description: `Successfully added ${savedUser.name} to the system.`,
-        });
-    }
+  const handleSaveUser = () => {
+    // Just refetch all users for simplicity.
+    // In a real-world scenario with large datasets, you'd update the state directly.
+    fetchUsers();
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     const userToDelete = users.find(u => u.id === userId);
-    setUsers(users.filter(u => u.id !== userId));
-    toast({
-        title: "User Deleted",
-        description: `User ${userToDelete?.name} has been removed.`,
-        variant: "destructive",
-    })
+    if (!userToDelete) return;
+    
+    try {
+        await deleteUser(userId);
+        setUsers(users.filter(u => u.id !== userId)); // Optimistic update
+        toast({
+            title: "User Deleted",
+            description: `User ${userToDelete?.name} has been removed.`,
+        });
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Could not delete user. Please try again.",
+            variant: "destructive",
+        });
+    }
   }
   
   const handleTestLdap = () => {
@@ -323,7 +362,13 @@ export default function UsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.length > 0 ? (
+                {isLoading ? (
+                    <TableRow>
+                        <TableCell colSpan={6} className="text-center h-24">
+                           <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                        </TableCell>
+                    </TableRow>
+                ) : filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.name}</TableCell>
@@ -332,43 +377,43 @@ export default function UsersPage() {
                         <TableCell>{user.organization}</TableCell>
                         <TableCell>{user.lastActive}</TableCell>
                         <TableCell>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <UserFormDialog user={user} onSave={handleSaveUser}>
-                                    <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                                        Edit
-                                    </button>
-                                </UserFormDialog>
-                                <AlertDialog>
+                          <AlertDialog>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <UserFormDialog user={user} onSave={handleSaveUser}>
+                                        <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                                            Edit
+                                        </button>
+                                    </UserFormDialog>
                                     <AlertDialogTrigger asChild>
                                         <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-destructive">
                                             Delete
                                         </button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently delete the user account for {user.name}.
-                                        </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                            Delete
-                                        </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                             <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the user account for {user.name}.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                    Delete
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </TableCell>
                     </TableRow>
                     ))
@@ -387,5 +432,3 @@ export default function UsersPage() {
     </div>
   );
 }
-
-    

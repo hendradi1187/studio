@@ -33,10 +33,11 @@ import {
   PlusCircle,
   Search,
   MoreHorizontal,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
-import { getAssets } from '@/lib/api';
+import { getAssets, deleteAsset } from '@/lib/api';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,31 +58,54 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 type Asset = {
+  id: string; // Assuming assets have a unique ID
   asset: string;
   description: string;
 }
 
 export default function AssetsPage() {
   const [assets, setAssets] = React.useState<Asset[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
 
   React.useEffect(() => {
-    // Mock data for demonstration as getAssets() returns empty array
-    setAssets([
-      { asset: 'urn:artifact:my-asset:1.0', description: 'Well Log Data for Block C' },
-      { asset: 'urn:artifact:another-asset:2.1', description: '3D Seismic Survey for Area Z' },
-    ]);
-    // In a real app, you would use this:
-    // getAssets().then(data => setAssets(data as Asset[]));
+    fetchAssets();
   }, []);
 
-  const handleDeleteAsset = (assetId: string) => {
-    setAssets(assets.filter(a => a.asset !== assetId));
-    toast({
-        title: "Asset Deleted",
-        description: `The asset "${assetId}" has been removed.`,
-        variant: "destructive",
-    })
+  const fetchAssets = async () => {
+    setIsLoading(true);
+    try {
+        const data = await getAssets();
+        setAssets(data as Asset[]);
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Could not fetch assets.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
+    }
+  }
+
+  const handleDeleteAsset = async (assetId: string) => {
+    const assetToDelete = assets.find(a => a.id === assetId);
+    if (!assetToDelete) return;
+
+    try {
+        await deleteAsset(assetId);
+        setAssets(assets.filter(a => a.id !== assetId));
+        toast({
+            title: "Asset Deleted",
+            description: `The asset "${assetToDelete.asset}" has been removed.`,
+        });
+    } catch (error) {
+         toast({
+            title: "Error",
+            description: `Could not delete asset "${assetToDelete.asset}".`,
+            variant: "destructive",
+        });
+    }
   }
 
   return (
@@ -117,15 +141,21 @@ export default function AssetsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {assets.length === 0 ? (
+                {isLoading ? (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center h-24">
+                           <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                        </TableCell>
+                    </TableRow>
+                ) : assets.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center h-24">
-                      No results.
+                      No assets found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  assets.map((asset, index) => (
-                    <TableRow key={index}>
+                  assets.map((asset) => (
+                    <TableRow key={asset.id}>
                       <TableCell className="font-medium font-mono text-xs">{asset.asset}</TableCell>
                       <TableCell>{asset.description}</TableCell>
                       <TableCell className="text-right">
@@ -140,7 +170,7 @@ export default function AssetsPage() {
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/assets/create">Edit</Link>
+                                        <Link href={`/assets/create?edit=${asset.id}`}>Edit</Link>
                                     </DropdownMenuItem>
                                     <AlertDialogTrigger asChild>
                                         <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-destructive">
@@ -158,7 +188,7 @@ export default function AssetsPage() {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteAsset(asset.asset)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                    <AlertDialogAction onClick={() => handleDeleteAsset(asset.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                                         Delete
                                     </AlertDialogAction>
                                 </AlertDialogFooter>

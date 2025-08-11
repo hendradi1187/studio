@@ -1,6 +1,5 @@
 
 
-import { mockState } from './mock-data';
 // This file will contain functions to fetch data from your backend API.
 // You can replace the mock data logic in your pages with calls to these functions.
 
@@ -10,184 +9,226 @@ export type BrokerConnection = {
     lastSync: string;
 }
 
-// Example structure for fetching assets
+// ================== Assets API ==================
 export async function getAssets() {
-  // In a real scenario, you would fetch this from your backend:
-  // const response = await fetch('/api/assets');
-  // const data = await response.json();
-  // return data;
-  
-  // For now, we return mock data.
-  return []; 
+  // In a real scenario, you would fetch this from your backend.
+  const response = await fetch('/api/assets');
+  if (!response.ok) {
+    console.error("Failed to fetch assets");
+    return [];
+  }
+  return response.json();
 }
 
 export async function createAsset(assetData: any) {
   console.log('Creating asset:', assetData);
-  // const response = await fetch('/api/assets', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(assetData),
-  // });
-  // return response.json();
-  return { id: 'new-asset', ...assetData };
+  const response = await fetch('/api/assets', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(assetData),
+  });
+  if (!response.ok) {
+      throw new Error('Failed to create asset');
+  }
+  return response.json();
 }
 
-// Example for Policies
+export async function deleteAsset(assetId: string) {
+    console.log('Deleting asset:', assetId);
+    const response = await fetch(`/api/assets/${assetId}`, {
+        method: 'DELETE',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to delete asset');
+    }
+    return { success: true };
+}
+
+
+// ================== Policies API ==================
 export async function getPolicies() {
-  // In a real scenario, you would fetch this from your backend:
-  // const response = await fetch('/api/policies');
-  // const data = await response.json();
-  // return data;
-  
-  // For now, we return mock data to keep the UI functional.
-  return [
-    { id: 'policy-unrestricted', permissions: 1, prohibitions: 0, obligations: 0 },
-    { id: 'my-policy-1', permissions: 1, prohibitions: 1, obligations: 0 },
-  ];
+    const response = await fetch('/api/policies');
+    if (!response.ok) {
+        console.error("Failed to fetch policies");
+        // Return mock data on failure to prevent UI crash during development
+        return [
+            { id: 'policy-unrestricted', permissions: 1, prohibitions: 0, obligations: 0 },
+            { id: 'my-policy-1', permissions: 1, prohibitions: 1, obligations: 0 },
+        ];
+    }
+    return response.json();
 }
 
 export async function createPolicy(policyData: any) {
     console.log('Creating policy:', policyData);
-    return { id: 'new-policy', ...policyData };
+    const response = await fetch('/api/policies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(policyData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to create policy');
+    }
+    return response.json();
 }
 
-// Example for Data Offers
+export async function deletePolicy(policyId: string) {
+    console.log('Deleting policy:', policyId);
+    const response = await fetch(`/api/policies/${policyId}`, {
+        method: 'DELETE',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to delete policy');
+    }
+    return { success: true };
+}
+
+
+// ================== Data Offers API ==================
 export async function getDataOffers() {
-    return [
-        {
-            id: 'my-data-offer',
-            assetId: 'urn:artifact:my-asset:1.0',
-            accessPolicy: 'my-policy-1',
-            contractPolicy: 'my-policy-1',
-        }
-    ];
+    const response = await fetch('/api/data-offers');
+    if (!response.ok) {
+        console.error("Failed to fetch data offers");
+        return [];
+    }
+    return response.json();
 }
 
 export async function createDataOffer(offerData: any) {
     console.log('Creating data offer:', offerData);
-    return { id: 'new-offer', ...offerData };
+    const response = await fetch('/api/data-offers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(offerData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to create data offer');
+    }
+    return response.json();
 }
 
-// Example for Catalog
+export async function deleteDataOffer(offerId: string) {
+    console.log('Deleting data offer:', offerId);
+    const response = await fetch(`/api/data-offers/${offerId}`, {
+        method: 'DELETE',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to delete data offer');
+    }
+    return { success: true };
+}
+
+
+// ================== Users API ==================
+export async function getUsers() {
+    const response = await fetch('/api/users');
+    if (!response.ok) {
+        console.error("Failed to fetch users");
+        return [];
+    }
+    return response.json();
+}
+
+export async function saveUser(userData: any) {
+    const isEditing = !!userData.id;
+    const url = isEditing ? `/api/users/${userData.id}` : '/api/users';
+    const method = isEditing ? 'PUT' : 'POST';
+
+    console.log(`${isEditing ? 'Updating' : 'Creating'} user:`, userData);
+    const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to ${isEditing ? 'update' : 'create'} user`);
+    }
+    return response.json();
+}
+
+export async function deleteUser(userId: string) {
+    console.log('Deleting user:', userId);
+    const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to delete user');
+    }
+    return { success: true };
+}
+
+
+// ================== Other APIs (placeholders) ==================
+
 export async function fetchCatalog(connectorEndpoint: string) {
     console.log('Fetching catalog for:', connectorEndpoint);
     if (!connectorEndpoint) return [];
-    return [
-      {
-        id: 'demotest',
-        name: 'DemoTest',
-        description: 'Demo Description',
-        version: '1.0',
-        license: 'https://creativecommons.org/licenses/by/4.0/',
-        policy: 'unrestricted',
-        provider: 'provider',
-      },
-    ];
+    // In a real app, this would use the connectorEndpoint to fetch data.
+    const response = await fetch(`/api/catalog?endpoint=${encodeURIComponent(connectorEndpoint)}`);
+    if (!response.ok) {
+        console.error("Failed to fetch catalog");
+        return [];
+    }
+    return response.json();
 }
 
-// Example for Contracts
 export async function getContracts() {
-     return [
-        {
-            id: '0197f34c-3b31-7622-b6b4-4b303d162489',
-            assetId: 'demotest',
-            provider: 'provider',
-            consumer: 'You',
-            signedAt: 'Signed 1 minute ago',
-            terminatedAt: 'Ongoing',
-            transfers: 0,
-        },
-    ];
+    const response = await fetch('/api/contracts');
+    if (!response.ok) {
+        console.error("Failed to fetch contracts");
+        return [];
+    }
+    return response.json();
 }
 
 export async function getContractDetails(id: string) {
     console.log('Fetching contract details for:', id);
-    // This would fetch specific contract details
-    return {
-        id,
-        assetId: 'demotest',
-        counterPartyId: 'provider',
-        counterPartyEndpoint: 'http://provider/api/dsp',
-        signedAt: '10/07/2025 09:45:48',
-        direction: 'CONSUMING',
-        policy: 'Unrestricted',
-        violations: [
-            "$: Policy has an assigner, which is currently unsupported.",
-            "$: Policy has an assignee, which is currently unsupported.",
-            "$: Policy does not have type SET, but CONTRACT, which is currently unsupported.",
-        ]
+    const response = await fetch(`/api/contracts/${id}`);
+    if (!response.ok) {
+        throw new Error('Failed to get contract details');
     }
+    return response.json();
 }
 
-// Example for Transfer History
 export async function getTransferHistory() {
-     return [
-        {
-            id: '0197f356-3cce-722f-b83b-0c83a3099b2e',
-            contractId: 'demotest',
-            provider: 'provider',
-            consumer: 'You',
-            state: 'STARTED',
-            lastUpdated: '19 seconds ago',
-        },
-        {
-            id: '0197f353-a21a-7eef-bd77-a82ceea2b74c',
-            contractId: 'demotest',
-            provider: 'provider',
-            consumer: 'You',
-            state: 'STARTED',
-            lastUpdated: '3 minutes ago',
-        }
-    ];
+     const response = await fetch('/api/transfers');
+     if (!response.ok) {
+        console.error("Failed to fetch transfer history");
+        return [];
+    }
+    return response.json();
 }
 
 // Broker / Connector Management
-export function getBrokerConnections() {
-    // In a real app, this would fetch from the backend.
-    return mockState.brokerConnections;
+export async function getBrokerConnections() {
+    const response = await fetch('/api/broker/connections');
+    if (!response.ok) {
+        console.error("Failed to fetch broker connections");
+        return [];
+    }
+    return response.json();
 }
 
 export async function registerConnector(connectorData: { name: string, endpoint: string }) {
     console.log('Attempting to register connector with backend:', connectorData);
-    
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // In a real scenario, you would make a POST request to your backend.
-    // For now, we simulate success by adding to our mock data array.
-    const newConnection: BrokerConnection = {
-        name: connectorData.name,
-        status: 'Active', // Default to active for simulation
-        lastSync: new Date().toISOString().replace('T', ' ').substring(0, 19),
-    };
-    mockState.brokerConnections.push(newConnection);
-
-    return { success: true };
+    const response = await fetch('/api/broker/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(connectorData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to register connector');
+    }
+    return response.json();
 }
 
 export async function syncConnector(connectorName: string) {
     console.log(`Triggering sync for ${connectorName} via backend...`);
-
-    // Simulate network delay for the sync process
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Find the connector and update its lastSync time
-    const connection = mockState.brokerConnections.find(c => c.name === connectorName);
-    if (!connection) {
-        throw new Error("Connector not found");
+    const response = await fetch(`/api/broker/sync/${connectorName}`, {
+        method: 'POST'
+    });
+    if (!response.ok) {
+        throw new Error('Failed to sync connector');
     }
-
-    const updatedConnection = {
-        ...connection,
-        lastSync: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        status: 'Active' as 'Active', // Assume sync makes it active
-    };
-
-    // Update the mock data source
-    mockState.brokerConnections = mockState.brokerConnections.map(conn => 
-        conn.name === connectorName ? updatedConnection : conn
-    );
-    
-    // In a real app, this would return the result from the backend API call.
-    return updatedConnection;
+    return response.json();
 }

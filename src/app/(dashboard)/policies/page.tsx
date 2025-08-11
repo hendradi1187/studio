@@ -19,9 +19,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { getPolicies } from '@/lib/api';
+import { getPolicies, deletePolicy } from '@/lib/api';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,20 +51,47 @@ type Policy = {
 }
 export default function PoliciesPage() {
   const [policies, setPolicies] = React.useState<Policy[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
   
   React.useEffect(() => {
-    getPolicies().then(data => setPolicies(data as Policy[]));
+    fetchPolicies();
   }, []);
 
-  const handleDeletePolicy = (policyId: string) => {
-    const policyToDelete = policies.find(p => p.id === policyId);
-    setPolicies(policies.filter(p => p.id !== policyId));
-    toast({
-        title: "Policy Deleted",
-        description: `Policy "${policyToDelete?.id}" has been removed.`,
+  const fetchPolicies = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getPolicies();
+      setPolicies(data as Policy[]);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not fetch policies.",
         variant: "destructive",
-    })
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeletePolicy = async (policyId: string) => {
+    const policyToDelete = policies.find(p => p.id === policyId);
+    if (!policyToDelete) return;
+
+    try {
+        await deletePolicy(policyId);
+        setPolicies(policies.filter(p => p.id !== policyId));
+        toast({
+            title: "Policy Deleted",
+            description: `Policy "${policyToDelete?.id}" has been removed.`,
+        });
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: `Could not delete policy "${policyToDelete?.id}".`,
+            variant: "destructive",
+        });
+    }
   }
 
   const getBadge = (count: number) => {
@@ -109,7 +136,13 @@ export default function PoliciesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {policies.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center h-24">
+                      <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                    </TableCell>
+                  </TableRow>
+                ) : policies.length === 0 ? (
                     <TableRow>
                         <TableCell colSpan={5} className="text-center h-24">
                             No policies found.
@@ -123,41 +156,41 @@ export default function PoliciesPage() {
                         <TableCell>{getBadge(policy.prohibitions)}</TableCell>
                         <TableCell>{getBadge(policy.obligations)}</TableCell>
                         <TableCell className="text-right">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                        <span className="sr-only">Toggle menu</span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/policies/create">Edit</Link>
-                                    </DropdownMenuItem>
-                                    <AlertDialog>
+                            <AlertDialog>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                            <span className="sr-only">Toggle menu</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/policies/create?edit=${policy.id}`}>Edit</Link>
+                                        </DropdownMenuItem>
                                         <AlertDialogTrigger asChild>
                                              <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-destructive">
                                                 Delete
                                             </button>
                                         </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    This action cannot be undone. This will permanently delete the policy "{policy.id}".
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDeletePolicy(policy.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                                    Delete
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the policy "{policy.id}".
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeletePolicy(policy.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                            Delete
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </TableCell>
                     </TableRow>
                   ))
@@ -170,4 +203,3 @@ export default function PoliciesPage() {
     </div>
   );
 }
-
