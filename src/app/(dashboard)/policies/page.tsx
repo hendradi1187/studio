@@ -33,13 +33,7 @@ export default function PoliciesPage() {
   const [policies, setPolicies] = React.useState<Policy[]>([]);
   
   React.useEffect(() => {
-    // In a real app, you'd fetch this from an API endpoint.
-    // getPolicies().then(data => setPolicies(data as Policy[]));
-    // For now, we use mock data to demonstrate the UI.
-    setPolicies([
-        { id: 'policy-unrestricted', permissions: 1, prohibitions: 0, obligations: 0 },
-        { id: 'my-policy-1', permissions: 1, prohibitions: 1, obligations: 0 },
-    ]);
+    getPolicies().then(data => setPolicies(data as Policy[]));
   }, []);
 
   const getBadge = (count: number) => {
@@ -113,3 +107,4 @@ export default function PoliciesPage() {
     </div>
   );
 }
+

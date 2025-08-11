@@ -1,4 +1,5 @@
 
+
 import { mockState } from './mock-data';
 // This file will contain functions to fetch data from your backend API.
 // You can replace the mock data logic in your pages with calls to these functions.
@@ -33,6 +34,12 @@ export async function createAsset(assetData: any) {
 
 // Example for Policies
 export async function getPolicies() {
+  // In a real scenario, you would fetch this from your backend:
+  // const response = await fetch('/api/policies');
+  // const data = await response.json();
+  // return data;
+  
+  // For now, we return mock data to keep the UI functional.
   return [
     { id: 'policy-unrestricted', permissions: 1, prohibitions: 0, obligations: 0 },
     { id: 'my-policy-1', permissions: 1, prohibitions: 1, obligations: 0 },
