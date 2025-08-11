@@ -21,12 +21,28 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function BrokerPage() {
   const [connections, setConnections] = React.useState<BrokerConnection[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [syncing, setSyncing] = React.useState<string | null>(null);
   const { toast } = useToast();
 
   React.useEffect(() => {
-    setConnections(getBrokerConnections());
-  }, []);
+    const fetchConnections = async () => {
+        setIsLoading(true);
+        try {
+            const data = await getBrokerConnections();
+            setConnections(data);
+        } catch (error) {
+             toast({
+                title: "Error",
+                description: "Could not fetch broker connections.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    fetchConnections();
+  }, [toast]);
 
   const handleSyncNow = async (connectorName: string) => {
     setSyncing(connectorName);
@@ -103,46 +119,52 @@ export default function BrokerPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {connections.map((conn) => {
-              const { icon, badge } = getStatusVisuals(conn.status);
-              const isSyncing = syncing === conn.name;
-              return (
-                <Card key={conn.name} className="flex flex-col">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-lg font-medium">{conn.name}</CardTitle>
-                    {icon}
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Status</span>
-                      {badge}
-                    </div>
-                    <div className="flex items-center justify-between text-sm mt-2">
-                      <span className="text-muted-foreground">Last Sync</span>
-                      <span>{conn.lastSync}</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => handleSyncNow(conn.name)}
-                      disabled={isSyncing}
-                    >
-                      {isSyncing ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                      )}
-                      {isSyncing ? 'Syncing...' : 'Sync Now'}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-48">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {connections.map((conn) => {
+                const { icon, badge } = getStatusVisuals(conn.status);
+                const isSyncing = syncing === conn.name;
+                return (
+                  <Card key={conn.name} className="flex flex-col">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-lg font-medium">{conn.name}</CardTitle>
+                      {icon}
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Status</span>
+                        {badge}
+                      </div>
+                      <div className="flex items-center justify-between text-sm mt-2">
+                        <span className="text-muted-foreground">Last Sync</span>
+                        <span>{conn.lastSync}</span>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => handleSyncNow(conn.name)}
+                        disabled={isSyncing}
+                      >
+                        {isSyncing ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                        )}
+                        {isSyncing ? 'Syncing...' : 'Sync Now'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
