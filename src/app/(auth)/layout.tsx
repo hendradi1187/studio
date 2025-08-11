@@ -32,7 +32,7 @@ export default function AuthLayout({
                   <div>
                       <span className="font-semibold text-foreground tracking-wider">SPEKTOR</span>
                       <p className="text-xs text-muted-foreground" style={{whiteSpace: 'nowrap'}}>
-                          Spektrum Dataspace Connector
+                          Spektrum Data Space Connector
                       </p>
                   </div>
               </div>
