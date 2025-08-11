@@ -75,18 +75,18 @@ export default function DashboardPage() {
                 <StatCard title="Contract Agreements" value={0} />
             </div>
 
-            {/* SPEKTRA Connector */}
+            {/* SPEKTOR Connector */}
             <Card className="lg:col-span-1 shadow-subtle">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span>SPEKTRA Connector</span>
+                        <span>SPEKTOR Connector</span>
                         <Badge variant="secondary">v13.0.3</Badge>
                     </CardTitle>
                     <CardDescription>Main Endpoint Information</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                       Share the following information to allow access to your SPEKTRA Connector catalog.
+                       Share the following information to allow access to your SPEKTOR Connector catalog.
                     </p>
                     <div>
                         <Label className="text-xs">Connector Endpoint</Label>

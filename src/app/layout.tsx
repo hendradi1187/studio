@@ -17,7 +17,7 @@ const fontSourceCodePro = Source_Code_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "SPEKTRA Data Exchange",
+  title: "SPEKTOR Data Exchange",
   description: "A modern platform for metadata exchange and data access management.",
 };
 

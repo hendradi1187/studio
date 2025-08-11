@@ -7,13 +7,13 @@ export function SpektraLogo(props: React.HTMLAttributes<HTMLDivElement>) {
     <div className="flex items-center gap-3" {...props}>
       <Image
         src="https://spektrum-iog4.org/_assets/media/62b39362de15226ee51d31d89378ded2.png"
-        alt="Spektra Logo"
+        alt="Spektor Logo"
         width={32}
         height={32}
         className="flex-shrink-0"
       />
       <div>
-        <span className="font-semibold text-white tracking-wider">SPEKTRA</span>
+        <span className="font-semibold text-white tracking-wider">SPEKTOR</span>
         <p className="text-xs text-slate-400" style={{whiteSpace: 'nowrap'}}>
             Spektrum Data Connector
         </p>

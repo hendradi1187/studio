@@ -54,8 +54,8 @@ export const datasets = [
 export const users = [
   {
     id: 'usr01',
-    name: 'Admin Spektra',
-    email: 'admin@spektra.com',
+    name: 'Admin Spektor',
+    email: 'admin@spektor.com',
     role: 'Admin',
     organization: 'SKK Migas',
     lastActive: '2 hours ago',
@@ -135,9 +135,9 @@ export const mockState = {
 export const transactionLogs = [
   { id: 'log01', timestamp: '2024-05-21 09:15:23', user: 'john.doe@alphaoil.com', institution: 'Alpha Oil & Gas', action: 'Download Metadata', status: 'Success', details: 'ds002' },
   { id: 'log02', timestamp: '2024-05-21 08:45:10', user: 'jane.smith@betapetrol.com', institution: 'Beta Petroleum', action: 'Request Access', status: 'Pending', details: 'ds001' },
-  { id: 'log03', timestamp: '2024-05-20 17:20:05', user: 'admin@spektra.com', institution: 'SKK Migas', action: 'Approve Access', status: 'Success', details: 'jane.smith -> ds005' },
+  { id: 'log03', timestamp: '2024-05-20 17:20:05', user: 'admin@spektor.com', institution: 'SKK Migas', action: 'Approve Access', status: 'Success', details: 'jane.smith -> ds005' },
   { id: 'log04', timestamp: '2024-05-20 11:05:45', user: 'mary.w@gammaenergy.com', institution: 'Gamma Energy', action: 'Search', status: 'Success', details: 'Keyword: "well log"' },
-  { id: 'log05', timestamp: '2024-05-19 14:00:00', user: 'System', institution: 'SPEKTRA', action: 'Sync Metadata', status: 'Failed', details: 'Epsilon Resources' },
+  { id: 'log05', timestamp: '2024-05-19 14:00:00', user: 'System', institution: 'SPEKTOR', action: 'Sync Metadata', status: 'Failed', details: 'Epsilon Resources' },
 ];
 
 export const notifications = [

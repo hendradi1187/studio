@@ -20,7 +20,7 @@ const notificationCategories = [
     { id: 'cat-well', label: 'Well Data', description: 'Newly added well logs, core data, and test results.' },
     { id: 'cat-production', label: 'Production Reports', description: 'Monthly and annual production data releases.' },
     { id: 'cat-geochem', label: 'Geochemical Analyses', description: 'New reports and studies on source rocks and fluids.' },
-    { id: 'cat-system', label: 'System Announcements', description: 'Updates about the SPEKTRA platform and maintenance.' },
+    { id: 'cat-system', label: 'System Announcements', description: 'Updates about the SPEKTOR platform and maintenance.' },
 ];
 
 export default function SettingsPage() {
