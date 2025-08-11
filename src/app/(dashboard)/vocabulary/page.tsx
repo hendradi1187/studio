@@ -34,8 +34,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PlusCircle, Search, FileUp, ChevronsRight } from 'lucide-react';
-import { vocabulary } from '@/lib/mock-data';
+import { PlusCircle, Search, FileUp, ChevronsRight, Loader2 } from 'lucide-react';
+import { getVocabulary, addVocabularyTerm } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 type VocabItem = {
@@ -44,6 +44,10 @@ type VocabItem = {
 };
 
 const VocabularyList: React.FC<{ items: VocabItem[] }> = ({ items }) => {
+  if (!items || items.length === 0) {
+    return <p className="text-sm text-muted-foreground">No vocabulary terms found.</p>;
+  }
+
   return (
     <Accordion type="multiple" className="w-full">
       {items.map((item, index) => (
@@ -52,7 +56,7 @@ const VocabularyList: React.FC<{ items: VocabItem[] }> = ({ items }) => {
             {item.term}
           </AccordionTrigger>
           <AccordionContent>
-            {item.children ? (
+            {item.children && item.children.length > 0 ? (
               <div className="pl-4 border-l">
                 <VocabularyList items={item.children} />
               </div>
@@ -69,19 +73,53 @@ const VocabularyList: React.FC<{ items: VocabItem[] }> = ({ items }) => {
 
 export default function VocabularyPage() {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [vocabulary, setVocabulary] = React.useState<VocabItem[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [isAddTermOpen, setIsAddTermOpen] = React.useState(false);
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
   const { toast } = useToast();
 
-  const handleAddTerm = (event: React.FormEvent<HTMLFormElement>) => {
+  const fetchVocabulary = async () => {
+    setIsLoading(true);
+    try {
+        const data = await getVocabulary();
+        setVocabulary(data);
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Could not fetch vocabulary.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
+    }
+  }
+
+  React.useEffect(() => {
+    fetchVocabulary();
+  }, []);
+
+  const handleAddTerm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const term = formData.get('term');
-    toast({
-        title: "Term Added!",
-        description: `The term "${term}" has been successfully added.`,
-    });
-    setIsAddTermOpen(false);
+    const term = formData.get('term') as string;
+    const parentTerm = formData.get('parent-term') as string;
+
+    try {
+        await addVocabularyTerm({ term, parent: parentTerm === 'none' ? undefined : parentTerm });
+        toast({
+            title: "Term Added!",
+            description: `The term "${term}" has been successfully added.`,
+        });
+        setIsAddTermOpen(false);
+        fetchVocabulary(); // Refetch to show the new term
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Could not add the new term.",
+            variant: "destructive",
+        });
+    }
   }
 
   const handleUploadFile = () => {
@@ -149,16 +187,16 @@ export default function VocabularyPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="parent-term">Parent Term (Optional)</Label>
-                                 <Select name="parent-term">
+                                 <Select name="parent-term" defaultValue="none">
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select a parent term" />
                                   </SelectTrigger>
                                   <SelectContent>
                                     <SelectItem value="none">None (Root Level)</SelectItem>
-                                    <SelectItem value="geophysics">Geophysics</SelectItem>
-                                    <SelectItem value="seismic">-- Seismic</SelectItem>
-                                    <SelectItem value="geology">Geology</SelectItem>
-                                    <SelectItem value="well-data">-- Well Data</SelectItem>
+                                    <SelectItem value="Seismic">Seismic</SelectItem>
+                                    <SelectItem value="Well (Sumur)">Well (Sumur)</SelectItem>
+                                    <SelectItem value="Field (Lapangan)">Field (Lapangan)</SelectItem>
+                                    <SelectItem value="Facilities">Facilities</SelectItem>
                                   </SelectContent>
                                 </Select>
                             </div>
@@ -183,7 +221,13 @@ export default function VocabularyPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <VocabularyList items={vocabulary} />
+                    {isLoading ? (
+                        <div className="flex items-center justify-center h-40">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                        </div>
+                    ) : (
+                        <VocabularyList items={vocabulary} />
+                    )}
                 </CardContent>
             </Card>
         </div>

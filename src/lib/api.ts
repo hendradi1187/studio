@@ -152,6 +152,29 @@ export async function deleteUser(userId: string) {
     return { success: true };
 }
 
+// ================== Vocabulary API ==================
+export async function getVocabulary() {
+    const response = await fetch('/api/vocabulary');
+    if (!response.ok) {
+        console.error("Failed to fetch vocabulary");
+        return [];
+    }
+    return response.json();
+}
+
+export async function addVocabularyTerm(termData: { term: string, parent?: string }) {
+    console.log('Adding vocabulary term:', termData);
+    const response = await fetch('/api/vocabulary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(termData),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to add vocabulary term');
+    }
+    return response.json();
+}
+
 
 // ================== Other APIs (placeholders) ==================
 
