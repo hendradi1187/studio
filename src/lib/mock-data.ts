@@ -95,29 +95,39 @@ export const users = [
 ];
 
 export const vocabulary = [
+  { term: 'Working Area' },
   {
-    term: 'Geophysics',
+    term: 'Seismic',
     children: [
-      {
-        term: 'Seismic',
-        children: [{ term: '2D Data' }, { term: '3D Data' }, { term: 'Raw' }, { term: 'Processed' }],
-      },
-      {
-        term: 'Non-Seismic',
-        children: [{ term: 'Gravity' }, { term: 'Magnetic' }, { term: 'Electromagnetic' }],
-      },
+      { term: '2D Seismic Data' },
+      { term: '3D Seismic Data' },
+      { term: 'Seismic Attributes' },
     ],
   },
   {
-    term: 'Geology',
+    term: 'Well (Sumur)',
     children: [
-      { term: 'Well Data', children: [{ term: 'Well Log' }, { term: 'Core Data' }, { term: 'Well Test' }] },
-      { term: 'Geochemistry', children: [{ term: 'Source Rock' }, { term: 'Fluid Analysis' }] },
+      { term: 'Well Log' },
+      { term: 'Well Core' },
+      { term: 'Well Test Data' },
+      { term: 'Drilling Report' },
     ],
   },
   {
-    term: 'Reservoir',
-    children: [{ term: 'Production Data' }, { term: 'Reservoir Simulation' }, { term: 'PVT Analysis' }],
+    term: 'Field (Lapangan)',
+    children: [
+      { term: 'Production Data' },
+      { term: 'Reservoir Model' },
+      { term: 'PVT Analysis' },
+    ],
+  },
+  {
+    term: 'Facilities',
+    children: [
+        { term: 'Pipeline Data' },
+        { term: 'Platform Information' },
+        { term: 'Processing Plant Specs' },
+    ]
   },
 ];
 
