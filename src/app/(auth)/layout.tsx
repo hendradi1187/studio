@@ -1,5 +1,5 @@
 
-import { SpektraLogo } from '@/components/spektra-logo';
+import { SpektorLogo } from '@/components/spektor-logo';
 import * as React from 'react';
 import Image from 'next/image';
 
@@ -32,7 +32,7 @@ export default function AuthLayout({
                   <div>
                       <span className="font-semibold text-foreground tracking-wider">SPEKTOR</span>
                       <p className="text-xs text-muted-foreground" style={{whiteSpace: 'nowrap'}}>
-                          Spektrum Data Connector
+                          Spektrum Dataspace Connector
                       </p>
                   </div>
               </div>

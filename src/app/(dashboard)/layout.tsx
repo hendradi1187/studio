@@ -30,7 +30,7 @@ import {
   BookA,
 } from 'lucide-react';
 
-import { SpektraLogo } from '@/components/spektra-logo';
+import { SpektorLogo } from '@/components/spektor-logo';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -158,7 +158,7 @@ const UserMenu = () => {
                 <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">Admin</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                        admin@spektra.com
+                        admin@spektor.com
                     </p>
                 </div>
             </DropdownMenuLabel>
@@ -236,7 +236,7 @@ const Header = () => (
             <SheetContent side="left" className="sm:max-w-xs bg-slate-800 border-r-0 p-0">
                 <div className="flex h-20 items-center justify-center border-b border-b-slate-700">
                     <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-                        <SpektraLogo />
+                        <SpektorLogo />
                     </Link>
                 </div>
                 <SidebarNav />
@@ -271,7 +271,7 @@ export default function DashboardLayout({
             <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 flex-col border-r bg-slate-800 sm:flex">
                 <div className="flex h-20 items-center justify-center border-b border-b-slate-700 px-6">
                 <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-white">
-                    <SpektraLogo />
+                    <SpektorLogo />
                 </Link>
                 </div>
                 <SidebarNav />
