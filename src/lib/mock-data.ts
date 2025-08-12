@@ -133,11 +133,11 @@ export const vocabulary = [
 
 export const mockState = {
   brokerConnections: [
-    { name: 'Alpha Oil & Gas', status: 'Active', lastSync: '2024-05-21 10:00:00' },
-    { name: 'Beta Petroleum', status: 'Active', lastSync: '2024-05-21 10:05:00' },
-    { name: 'Gamma Energy', status: 'Inactive', lastSync: '2024-05-20 08:30:00' },
-    { name: 'Delta Geophysics', status: 'Active', lastSync: '2024-05-21 09:55:00' },
-    { name: 'Epsilon Resources', status: 'Error', lastSync: '2024-05-19 14:00:00' },
+    { name: 'PHE', status: 'Active', lastSync: '2024-05-21 10:00:00' },
+    { name: 'MEDCO', status: 'Active', lastSync: '2024-05-21 10:05:00' },
+    { name: 'INPEX', status: 'Inactive', lastSync: '2024-05-20 08:30:00' },
+    { name: 'BP', status: 'Active', lastSync: '2024-05-21 09:55:00' },
+    { name: 'EMP', status: 'Error', lastSync: '2024-05-19 14:00:00' },
   ]
 };
 
