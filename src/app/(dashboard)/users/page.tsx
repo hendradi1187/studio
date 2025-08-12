@@ -70,14 +70,22 @@ type User = {
 
 const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'Admin':
-        return <Badge variant="destructive">Admin</Badge>;
-      case 'KKKS':
-        return <Badge className="bg-blue-500 hover:bg-blue-600">KKKS</Badge>;
-      case 'Validator':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600 text-black">Validator</Badge>;
-      case 'Viewer':
-        return <Badge variant="secondary">Viewer</Badge>;
+      case 'Regulator (SKK Migas)':
+        return <Badge variant="destructive">Regulator</Badge>;
+      case 'KKKS Admin':
+        return <Badge className="bg-blue-600 hover:bg-blue-700">KKKS Admin</Badge>;
+      case 'Data Custodian':
+        return <Badge className="bg-teal-500 hover:bg-teal-600">Data Custodian</Badge>;
+      case 'Technical Analyst':
+        return <Badge className="bg-purple-500 hover:bg-purple-600">Analyst</Badge>;
+       case 'Compliance Officer':
+        return <Badge className="bg-amber-500 hover:bg-amber-600 text-black">Compliance</Badge>;
+      case 'Integration Engineer':
+        return <Badge className="bg-indigo-500 hover:bg-indigo-600">Engineer</Badge>;
+      case 'External Partner':
+         return <Badge className="bg-gray-500 hover:bg-gray-600">Partner</Badge>;
+      case 'Auditor':
+        return <Badge variant="secondary">Auditor</Badge>;
       default:
         return <Badge>{role}</Badge>;
     }
@@ -139,6 +147,17 @@ const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave
         }
     };
 
+    const roles = [
+        "Regulator (SKK Migas)",
+        "KKKS Admin",
+        "Data Custodian",
+        "Technical Analyst",
+        "Compliance Officer",
+        "Integration Engineer",
+        "External Partner",
+        "Auditor"
+    ];
+
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
@@ -170,10 +189,7 @@ const UserFormDialog = ({ user, onSave, children }: { user?: User | null, onSave
                                     <SelectValue placeholder="Select a role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Viewer">Viewer</SelectItem>
-                                    <SelectItem value="KKKS">KKKS</SelectItem>
-                                    <SelectItem value="Validator">Validator</SelectItem>
-                                    <SelectItem value="Admin">Admin</SelectItem>
+                                    {roles.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
