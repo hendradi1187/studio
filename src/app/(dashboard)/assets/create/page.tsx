@@ -74,7 +74,17 @@ const Step1_OfferType = ({ offerType, setOfferType }: { offerType: string, setOf
     </Card>
 );
 
-const Step2_DataSource = () => (
+const Step2_DataSource = ({ 
+    type, setType, 
+    method, setMethod, 
+    url, setUrl, 
+    auth, setAuth 
+}: {
+    type: string; setType: (v: string) => void;
+    method: string; setMethod: (v: string) => void;
+    url: string; setUrl: (v: string) => void;
+    auth: string; setAuth: (v: string) => void;
+}) => (
     <Card>
         <CardHeader>
             <CardTitle>Data Source Configuration</CardTitle>
@@ -83,7 +93,7 @@ const Step2_DataSource = () => (
         <CardContent className="space-y-6">
             <FormField>
                 <Label htmlFor="type">Type</Label>
-                <Select defaultValue="rest-api">
+                <Select value={type} onValueChange={setType}>
                 <SelectTrigger id="type">
                     <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -96,7 +106,7 @@ const Step2_DataSource = () => (
 
             <FormField>
                 <Label htmlFor="method">Method</Label>
-                <Select defaultValue="get">
+                <Select value={method} onValueChange={setMethod}>
                 <SelectTrigger id="method">
                     <SelectValue placeholder="Select method" />
                 </SelectTrigger>
@@ -109,7 +119,7 @@ const Step2_DataSource = () => (
 
             <FormField>
                 <LabelWithInfo htmlFor="url">URL *</LabelWithInfo>
-                <Input id="url" placeholder="https://my-data-source.com/api" />
+                <Input id="url" placeholder="https://my-data-source.com/api" value={url} onChange={(e) => setUrl(e.target.value)} />
             </FormField>
 
             <FormField>
@@ -119,7 +129,7 @@ const Step2_DataSource = () => (
 
             <FormField>
                 <Label htmlFor="auth">Authentication</Label>
-                <Select defaultValue="none">
+                <Select value={auth} onValueChange={setAuth}>
                 <SelectTrigger id="auth">
                     <SelectValue placeholder="Select authentication" />
                 </SelectTrigger>
@@ -139,7 +149,23 @@ const Step2_DataSource = () => (
     </Card>
 );
 
-const Step3_GeneralInfo = () => (
+const Step3_GeneralInfo = ({
+    title, setTitle,
+    assetId, setAssetId,
+    description, setDescription,
+    keywords, setKeywords,
+    version, setVersion,
+    language, setLanguage,
+    contentType, setContentType,
+}: {
+    title: string; setTitle: (v: string) => void;
+    assetId: string; setAssetId: (v: string) => void;
+    description: string; setDescription: (v: string) => void;
+    keywords: string; setKeywords: (v: string) => void;
+    version: string; setVersion: (v: string) => void;
+    language: string; setLanguage: (v: string) => void;
+    contentType: string; setContentType: (v: string) => void;
+}) => (
     <Card>
         <CardHeader>
             <CardTitle>General Information</CardTitle>
@@ -148,37 +174,37 @@ const Step3_GeneralInfo = () => (
         <CardContent className="space-y-6">
             <FormField>
                 <LabelWithInfo htmlFor="title">Title *</LabelWithInfo>
-                <Input id="title" placeholder="e.g., Well Log Data for Block C" />
+                <Input id="title" placeholder="e.g., Well Log Data for Block C" value={title} onChange={(e) => setTitle(e.target.value)} />
             </FormField>
             
             <FormField>
                 <LabelWithInfo htmlFor="asset-id">Asset ID *</LabelWithInfo>
-                <Input id="asset-id" placeholder="urn:artifact:my-asset:1.0" />
+                <Input id="asset-id" placeholder="urn:artifact:my-asset:1.0" value={assetId} onChange={(e) => setAssetId(e.target.value)} />
             </FormField>
 
             <FormField>
                 <LabelWithInfo htmlFor="description">Description</LabelWithInfo>
-                <Textarea id="description" placeholder="A brief summary of the asset, its contents, and purpose." />
+                <Textarea id="description" placeholder="A brief summary of the asset, its contents, and purpose." value={description} onChange={(e) => setDescription(e.target.value)} />
             </FormField>
 
             <FormField>
                 <LabelWithInfo htmlFor="keywords">Keywords</LabelWithInfo>
-                <Input id="keywords" placeholder="e.g., Seismic, Well Log, Geochemistry" />
+                <Input id="keywords" placeholder="e.g., Seismic, Well Log, Geochemistry" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
             </FormField>
 
             <FormField>
                 <LabelWithInfo htmlFor="version">Version</LabelWithInfo>
-                <Input id="version" placeholder="1.0.0" />
+                <Input id="version" placeholder="1.0.0" value={version} onChange={(e) => setVersion(e.target.value)} />
             </FormField>
             
             <FormField>
                 <LabelWithInfo htmlFor="language">Language</LabelWithInfo>
-                <Input id="language" placeholder="English" />
+                <Input id="language" placeholder="English" value={language} onChange={(e) => setLanguage(e.target.value)} />
             </FormField>
             
             <FormField>
                 <LabelWithInfo htmlFor="content-type">Content Type</LabelWithInfo>
-                <Input id="content-type" placeholder="application/json" />
+                <Input id="content-type" placeholder="application/json" value={contentType} onChange={(e) => setContentType(e.target.value)} />
             </FormField>
         </CardContent>
     </Card>
@@ -187,7 +213,25 @@ const Step3_GeneralInfo = () => (
 
 export default function NewAssetPage() {
   const [currentStep, setCurrentStep] = React.useState(0);
+  
+  // Step 1 State
   const [offerType, setOfferType] = React.useState('available');
+
+  // Step 2 State
+  const [dataSourceType, setDataSourceType] = React.useState('rest-api');
+  const [dataSourceMethod, setDataSourceMethod] = React.useState('get');
+  const [dataSourceUrl, setDataSourceUrl] = React.useState('');
+  const [dataSourceAuth, setDataSourceAuth] = React.useState('none');
+
+  // Step 3 State
+  const [title, setTitle] = React.useState('');
+  const [assetId, setAssetId] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [keywords, setKeywords] = React.useState('');
+  const [version, setVersion] = React.useState('');
+  const [language, setLanguage] = React.useState('');
+  const [contentType, setContentType] = React.useState('');
+
 
   const finalStepIndex = offerType === 'available' ? steps.length - 1 : steps.length - 2;
 
@@ -253,8 +297,21 @@ export default function NewAssetPage() {
 
       <div className="mt-8">
         {currentStep === 0 && <Step1_OfferType offerType={offerType} setOfferType={setOfferType} />}
-        {currentStep === 1 && offerType === 'available' && <Step2_DataSource />}
-        {currentStep === 2 && <Step3_GeneralInfo />}
+        {currentStep === 1 && offerType === 'available' && <Step2_DataSource 
+            type={dataSourceType} setType={setDataSourceType}
+            method={dataSourceMethod} setMethod={setDataSourceMethod}
+            url={dataSourceUrl} setUrl={setDataSourceUrl}
+            auth={dataSourceAuth} setAuth={setDataSourceAuth}
+        />}
+        {currentStep === 2 && <Step3_GeneralInfo
+            title={title} setTitle={setTitle}
+            assetId={assetId} setAssetId={setAssetId}
+            description={description} setDescription={setDescription}
+            keywords={keywords} setKeywords={setKeywords}
+            version={version} setVersion={setVersion}
+            language={language} setLanguage={setLanguage}
+            contentType={contentType} setContentType={setContentType}
+        />}
       </div>
 
        <div className="flex justify-between pt-4 gap-2">
