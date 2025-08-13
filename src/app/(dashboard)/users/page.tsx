@@ -261,20 +261,131 @@ export default function UsersPage() {
     }
   }
   
-  const handleTestLdap = () => {
+  const handleTestLdap = async () => {
+    const form = document.getElementById('ldap-config-form') as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const testData = {
+      serverUrl: formData.get('ldap-url') as string,
+      bindDn: formData.get('bind-dn') as string,
+      bindPassword: formData.get('bind-password') as string,
+      baseDn: formData.get('base-dn') as string,
+      port: parseInt(formData.get('port') as string) || 389,
+      sslEnabled: formData.get('ssl-enabled') === 'on'
+    };
+
+    try {
+      const response = await fetch('/api/ldap/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testData)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Connection Successful",
+          description: result.message || "LDAP server connection is working correctly."
+        });
+      } else {
+        toast({
+          title: "Connection Failed",
+          description: result.message || "Unable to connect to LDAP server.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
       toast({
-          title: "Testing Connection...",
-          description: "A test connection to the LDAP server was initiated."
-      })
+        title: "Test Failed",
+        description: "An error occurred while testing the LDAP connection.",
+        variant: "destructive"
+      });
+    }
   }
 
-  const handleSaveLdap = (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      toast({
+  const handleSaveLdap = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    
+    const ldapConfig = {
+      name: formData.get('ldap-name') as string,
+      serverUrl: formData.get('ldap-url') as string,
+      bindDn: formData.get('bind-dn') as string,
+      bindPassword: formData.get('bind-password') as string,
+      baseDn: formData.get('base-dn') as string,
+      port: parseInt(formData.get('port') as string) || 389,
+      sslEnabled: formData.get('ssl-enabled') === 'on',
+      enabled: true
+    };
+
+    try {
+      const response = await fetch('/api/ldap/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ldapConfig)
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        toast({
           title: "Configuration Saved",
           description: "LDAP configuration has been saved successfully."
+        });
+        setIsLdapDialogOpen(false);
+        
+        // Optionally sync users
+        const shouldSync = confirm("Would you like to sync users from LDAP now?");
+        if (shouldSync) {
+          await handleSyncLdap(result.configId);
+        }
+      } else {
+        toast({
+          title: "Save Failed",
+          description: result.message || "Failed to save LDAP configuration.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while saving the LDAP configuration.",
+        variant: "destructive"
       });
-      setIsLdapDialogOpen(false);
+    }
+  }
+
+  const handleSyncLdap = async (configId: string) => {
+    try {
+      const response = await fetch('/api/ldap/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ configId })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        toast({
+          title: "Sync Completed",
+          description: `${result.success} users synchronized from LDAP.`
+        });
+        fetchUsers(); // Refresh user list
+      } else {
+        toast({
+          title: "Sync Failed",
+          description: result.message || "Failed to sync users from LDAP.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Sync Error",
+        description: "An error occurred during LDAP user sync.",
+        variant: "destructive"
+      });
+    }
   }
 
   const filteredUsers = users.filter(
@@ -309,24 +420,36 @@ export default function UsersPage() {
                 <form id="ldap-config-form" onSubmit={handleSaveLdap}>
                   <div className="grid gap-4 py-4">
                     <div className="space-y-2">
+                      <Label htmlFor="ldap-name">Configuration Name</Label>
+                      <Input id="ldap-name" name="ldap-name" placeholder="Main LDAP Server" required />
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="ldap-url">Server URL</Label>
-                      <Input id="ldap-url" name="ldap-url" placeholder="ldap://your-server.com:389" required />
+                      <Input id="ldap-url" name="ldap-url" placeholder="ldap://spektra.com:389" required />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="port">Port</Label>
+                        <Input id="port" name="port" type="number" placeholder="389" defaultValue="389" />
+                      </div>
+                      <div className="space-y-2 flex items-end">
+                        <label className="flex items-center space-x-2">
+                          <input type="checkbox" name="ssl-enabled" />
+                          <span className="text-sm">Enable SSL</span>
+                        </label>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="bind-dn">Bind DN</Label>
-                      <Input id="bind-dn" name="bind-dn" placeholder="cn=admin,dc=example,dc=com" required />
+                      <Input id="bind-dn" name="bind-dn" placeholder="cn=admin,dc=spektra,dc=com" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="bind-pw">Bind Password</Label>
-                      <Input id="bind-pw" name="bind-pw" type="password" required />
+                      <Label htmlFor="bind-password">Bind Password</Label>
+                      <Input id="bind-password" name="bind-password" type="password" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="base-dn">Base DN</Label>
-                      <Input id="base-dn" name="base-dn" placeholder="ou=users,dc=example,dc=com" required />
-                    </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="user-filter">User Search Filter</Label>
-                      <Input id="user-filter" name="user-filter" placeholder="(objectClass=inetOrgPerson)" required />
+                      <Input id="base-dn" name="base-dn" placeholder="ou=users,dc=spektra,dc=com" required />
                     </div>
                   </div>
                 </form>

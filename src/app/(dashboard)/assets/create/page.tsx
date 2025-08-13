@@ -24,14 +24,29 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ChevronRight, PlusCircle, Info, File, Settings, ChevronLeft, CheckCircle } from 'lucide-react';
+import { ChevronRight, PlusCircle, Info, File, Settings, ChevronLeft, CheckCircle, Upload, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { createAsset, getAssets } from '@/lib/api';
+import FileUpload from '@/components/file-upload';
+
+type UploadedFile = {
+  fileName: string;
+  originalName: string;
+  size: number;
+  type: string;
+  category: string;
+  path: string;
+  uploadedAt: string;
+};
 
 
 const steps = [
   { id: '01', name: 'Offer Type', icon: File },
   { id: '02', name: 'Data Source', icon: Settings },
   { id: '03', name: 'General Information', icon: Info },
+  { id: '04', name: 'File Upload', icon: Upload },
 ];
 
 const FormField = ({ children }: { children: React.ReactNode }) => (
@@ -151,20 +166,20 @@ const Step2_DataSource = ({
 
 const Step3_GeneralInfo = ({
     title, setTitle,
-    assetId, setAssetId,
     description, setDescription,
     keywords, setKeywords,
     version, setVersion,
-    language, setLanguage,
-    contentType, setContentType,
+    geographicArea, setGeographicArea,
+    accessStatus, setAccessStatus,
+    abstract, setAbstract,
 }: {
     title: string; setTitle: (v: string) => void;
-    assetId: string; setAssetId: (v: string) => void;
     description: string; setDescription: (v: string) => void;
     keywords: string; setKeywords: (v: string) => void;
     version: string; setVersion: (v: string) => void;
-    language: string; setLanguage: (v: string) => void;
-    contentType: string; setContentType: (v: string) => void;
+    geographicArea: string; setGeographicArea: (v: string) => void;
+    accessStatus: string; setAccessStatus: (v: string) => void;
+    abstract: string; setAbstract: (v: string) => void;
 }) => (
     <Card>
         <CardHeader>
@@ -174,12 +189,7 @@ const Step3_GeneralInfo = ({
         <CardContent className="space-y-6">
             <FormField>
                 <LabelWithInfo htmlFor="title">Title *</LabelWithInfo>
-                <Input id="title" placeholder="e.g., Well Log Data for Block C" value={title} onChange={(e) => setTitle(e.target.value)} />
-            </FormField>
-            
-            <FormField>
-                <LabelWithInfo htmlFor="asset-id">Asset ID *</LabelWithInfo>
-                <Input id="asset-id" placeholder="urn:artifact:my-asset:1.0" value={assetId} onChange={(e) => setAssetId(e.target.value)} />
+                <Input id="title" placeholder="e.g., Seismic Survey Block A-1" value={title} onChange={(e) => setTitle(e.target.value)} />
             </FormField>
 
             <FormField>
@@ -188,24 +198,68 @@ const Step3_GeneralInfo = ({
             </FormField>
 
             <FormField>
-                <LabelWithInfo htmlFor="keywords">Keywords</LabelWithInfo>
-                <Input id="keywords" placeholder="e.g., Seismic, Well Log, Geochemistry" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
+                <LabelWithInfo htmlFor="abstract">Abstract</LabelWithInfo>
+                <Textarea id="abstract" placeholder="Detailed technical description of the data asset." value={abstract} onChange={(e) => setAbstract(e.target.value)} />
             </FormField>
 
             <FormField>
-                <LabelWithInfo htmlFor="version">Version</LabelWithInfo>
-                <Input id="version" placeholder="1.0.0" value={version} onChange={(e) => setVersion(e.target.value)} />
+                <LabelWithInfo htmlFor="keywords">Keywords</LabelWithInfo>
+                <Input id="keywords" placeholder="e.g., seismic, 3D, exploration, survey" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
             </FormField>
-            
+
             <FormField>
-                <LabelWithInfo htmlFor="language">Language</LabelWithInfo>
-                <Input id="language" placeholder="English" value={language} onChange={(e) => setLanguage(e.target.value)} />
+                <LabelWithInfo htmlFor="geographic-area">Geographic Area</LabelWithInfo>
+                <Input id="geographic-area" placeholder="e.g., East Java Basin, Natuna Sea" value={geographicArea} onChange={(e) => setGeographicArea(e.target.value)} />
             </FormField>
-            
-            <FormField>
-                <LabelWithInfo htmlFor="content-type">Content Type</LabelWithInfo>
-                <Input id="content-type" placeholder="application/json" value={contentType} onChange={(e) => setContentType(e.target.value)} />
-            </FormField>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField>
+                    <LabelWithInfo htmlFor="version">Version</LabelWithInfo>
+                    <Input id="version" placeholder="1.0" value={version} onChange={(e) => setVersion(e.target.value)} />
+                </FormField>
+                
+                <FormField>
+                    <LabelWithInfo htmlFor="access-status">Access Status</LabelWithInfo>
+                    <Select value={accessStatus} onValueChange={setAccessStatus}>
+                        <SelectTrigger id="access-status">
+                            <SelectValue placeholder="Select access level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="open">Open - Public access</SelectItem>
+                            <SelectItem value="restricted">Restricted - Limited access</SelectItem>
+                            <SelectItem value="by_request">By Request - Approval required</SelectItem>
+                            <SelectItem value="private">Private - Owner only</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </FormField>
+            </div>
+        </CardContent>
+    </Card>
+);
+
+const Step4_FileUpload = ({
+    uploadedFiles, setUploadedFiles,
+    category, setCategory
+}: {
+    uploadedFiles: UploadedFile[];
+    setUploadedFiles: (files: UploadedFile[]) => void;
+    category: string;
+    setCategory: (category: string) => void;
+}) => (
+    <Card>
+        <CardHeader>
+            <CardTitle>File Upload</CardTitle>
+            <CardDescription>Upload data files for your asset. Supported formats include SEG-Y, LAS, CSV, Excel, PDF, and more.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <FileUpload
+                onFileUploaded={(file) => setUploadedFiles([...uploadedFiles, file])}
+                onFileRemoved={(fileName) => setUploadedFiles(uploadedFiles.filter(f => f.fileName !== fileName))}
+                category={category as any}
+                allowCategorySelection={true}
+                maxFiles={10}
+                maxSize={100 * 1024 * 1024 * 1024} // 100GB
+            />
         </CardContent>
     </Card>
 );
@@ -213,6 +267,11 @@ const Step3_GeneralInfo = ({
 
 export default function NewAssetPage() {
   const [currentStep, setCurrentStep] = React.useState(0);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
   
   // Step 1 State
   const [offerType, setOfferType] = React.useState('available');
@@ -225,13 +284,16 @@ export default function NewAssetPage() {
 
   // Step 3 State
   const [title, setTitle] = React.useState('');
-  const [assetId, setAssetId] = React.useState('');
   const [description, setDescription] = React.useState('');
+  const [abstract, setAbstract] = React.useState('');
   const [keywords, setKeywords] = React.useState('');
-  const [version, setVersion] = React.useState('');
-  const [language, setLanguage] = React.useState('');
-  const [contentType, setContentType] = React.useState('');
+  const [version, setVersion] = React.useState('1.0');
+  const [geographicArea, setGeographicArea] = React.useState('');
+  const [accessStatus, setAccessStatus] = React.useState('private');
 
+  // Step 4 State
+  const [uploadedFiles, setUploadedFiles] = React.useState<UploadedFile[]>([]);
+  const [fileCategory, setFileCategory] = React.useState('other');
 
   const finalStepIndex = offerType === 'available' ? steps.length - 1 : steps.length - 2;
 
@@ -254,6 +316,71 @@ export default function NewAssetPage() {
         } else {
             setCurrentStep(currentStep - 1);
         }
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!title.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Asset title is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Calculate total file size
+      const totalFileSize = uploadedFiles.reduce((sum, file) => sum + file.size, 0);
+      const mainFile = uploadedFiles[0]; // Use first uploaded file as main file
+      
+      // Determine data format from uploaded files
+      const formats = uploadedFiles.map(file => {
+        const ext = file.originalName.toLowerCase().split('.').pop();
+        if (ext === 'sgy' || ext === 'segy') return '.sgy';
+        if (ext === 'las') return '.las';
+        if (ext === 'csv') return '.csv';
+        if (ext === 'xlsx') return '.xlsx';
+        if (ext === 'pdf') return '.pdf';
+        return file.type;
+      });
+      
+      const assetData = {
+        title: title.trim(),
+        description: description.trim(),
+        abstract: abstract.trim(),
+        keywords: keywords.trim(),
+        geographicArea: geographicArea.trim(),
+        accessStatus,
+        version: version || '1.0',
+        dataFormat: formats.join(', '),
+        fileSize: totalFileSize,
+        filePath: mainFile?.path,
+        category: fileCategory,
+        dataStructure: uploadedFiles.length > 0 ? `${uploadedFiles.length} file(s): ${uploadedFiles.map(f => f.originalName).join(', ')}` : undefined,
+      };
+
+      const result = await createAsset(assetData);
+      
+      toast({
+        title: "Asset Created",
+        description: `Asset "${title}" has been created successfully.`,
+      });
+      
+      // Redirect to assets list
+      router.push('/assets');
+      
+    } catch (error) {
+      console.error('Error creating asset:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create asset",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -305,12 +432,16 @@ export default function NewAssetPage() {
         />}
         {currentStep === 2 && <Step3_GeneralInfo
             title={title} setTitle={setTitle}
-            assetId={assetId} setAssetId={setAssetId}
             description={description} setDescription={setDescription}
+            abstract={abstract} setAbstract={setAbstract}
             keywords={keywords} setKeywords={setKeywords}
             version={version} setVersion={setVersion}
-            language={language} setLanguage={setLanguage}
-            contentType={contentType} setContentType={setContentType}
+            geographicArea={geographicArea} setGeographicArea={setGeographicArea}
+            accessStatus={accessStatus} setAccessStatus={setAccessStatus}
+        />}
+        {currentStep === 3 && <Step4_FileUpload
+            uploadedFiles={uploadedFiles} setUploadedFiles={setUploadedFiles}
+            category={fileCategory} setCategory={setFileCategory}
         />}
       </div>
 
@@ -325,14 +456,18 @@ export default function NewAssetPage() {
             </div>
             <div>
                  {currentStep < finalStepIndex ? (
-                    <Button onClick={handleNext}>
+                    <Button onClick={handleNext} disabled={isSubmitting}>
                         Next
                         <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                  ) : (
-                    <Button>
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Create Asset
+                    <Button onClick={handleSubmit} disabled={isSubmitting || !title.trim()}>
+                        {isSubmitting ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                        )}
+                        {isSubmitting ? 'Creating...' : 'Create Asset'}
                     </Button>
                  )}
             </div>

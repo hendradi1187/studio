@@ -1,0 +1,10 @@
+# Profile Photos Directory
+
+This directory contains user profile photos.
+
+Upload format: user_[user_id].[extension]
+Example: user_usr01.jpg
+
+Supported formats: JPG, PNG, WebP
+Maximum size: 2MB
+Recommended resolution: 400x400px
