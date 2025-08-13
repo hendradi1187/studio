@@ -52,6 +52,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useTheme } from "next-themes";
 import { ThemeProvider } from "@/components/theme-provider";
+import { UserProfileAvatar, useUserProfile } from '@/components/user-profile-avatar';
 
 
 interface NavItemProps {
@@ -142,23 +143,23 @@ const SidebarNav = () => (
 
 const UserMenu = () => {
     const { theme, setTheme } = useTheme();
+    const { profile, isLoading } = useUserProfile();
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="overflow-hidden rounded-full">
-                <Avatar>
-                <AvatarImage src="https://placehold.co/32x32" alt="Admin" data-ai-hint="user avatar" />
-                <AvatarFallback>AD</AvatarFallback>
-                </Avatar>
+                <UserProfileAvatar size="md" />
             </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Admin</p>
+                    <p className="text-sm font-medium leading-none">
+                        {isLoading ? 'Loading...' : profile?.name || 'Admin User'}
+                    </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                        admin@spektor.com
+                        {isLoading ? '...' : profile?.email || 'admin@spektra.com'}
                     </p>
                 </div>
             </DropdownMenuLabel>

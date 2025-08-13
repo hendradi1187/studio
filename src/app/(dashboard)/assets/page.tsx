@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -59,9 +60,28 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 type Asset = {
-  id: string; // Assuming assets have a unique ID
-  asset: string;
+  id: string;
+  title: string;
   description: string;
+  abstract?: string;
+  access_status: string;
+  data_format: string;
+  file_size: number;
+  keywords: string;
+  geographic_area: string;
+  time_period_start: string;
+  time_period_end: string;
+  version: string;
+  created_at: string;
+  updated_at: string;
+  owner_organization_name: string;
+  owner_organization_type: string;
+  vocabulary_count: number;
+  vocabulary?: Array<{
+    id: string;
+    term: string;
+    level: number;
+  }>;
 }
 
 export default function AssetsPage() {
@@ -76,8 +96,8 @@ export default function AssetsPage() {
   const fetchAssets = async () => {
     setIsLoading(true);
     try {
-        const data = await getAssets();
-        setAssets(data as Asset[]);
+        const response = await getAssets();
+        setAssets(response.assets || []);
     } catch (error) {
         toast({
             title: "Error",
@@ -98,12 +118,12 @@ export default function AssetsPage() {
         setAssets(assets.filter(a => a.id !== assetId));
         toast({
             title: "Asset Deleted",
-            description: `The asset "${assetToDelete.asset}" has been removed.`,
+            description: `The asset "${assetToDelete.title}" has been removed.`,
         });
     } catch (error) {
          toast({
             title: "Error",
-            description: `Could not delete asset "${assetToDelete.asset}".`,
+            description: `Could not delete asset "${assetToDelete.title}".`,
             variant: "destructive",
         });
     }
@@ -136,29 +156,39 @@ export default function AssetsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Asset</TableHead>
+                  <TableHead>Title</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead>Format</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead><span className="sr-only">Actions</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                     <TableRow>
-                        <TableCell colSpan={3} className="text-center h-24">
+                        <TableCell colSpan={6} className="text-center h-24">
                            <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                         </TableCell>
                     </TableRow>
                 ) : assets.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center h-24">
+                    <TableCell colSpan={6} className="text-center h-24">
                       No assets found.
                     </TableCell>
                   </TableRow>
                 ) : (
                   assets.map((asset) => (
                     <TableRow key={asset.id}>
-                      <TableCell className="font-medium font-mono text-xs">{asset.asset}</TableCell>
-                      <TableCell>{asset.description}</TableCell>
+                      <TableCell className="font-medium">{asset.title}</TableCell>
+                      <TableCell className="max-w-xs truncate">{asset.description}</TableCell>
+                      <TableCell className="font-mono text-sm">{asset.data_format}</TableCell>
+                      <TableCell>{asset.owner_organization_name}</TableCell>
+                      <TableCell>
+                        <Badge variant={asset.access_status === 'open' ? 'default' : 'secondary'}>
+                          {asset.access_status}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-right">
                          <AlertDialog>
                             <DropdownMenu>
@@ -184,7 +214,7 @@ export default function AssetsPage() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the asset "{asset.asset}".
+                                        This action cannot be undone. This will permanently delete the asset "{asset.title}".
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

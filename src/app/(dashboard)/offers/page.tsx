@@ -41,8 +41,21 @@ import { useToast } from '@/hooks/use-toast';
 type DataOffer = {
     id: string;
     assetId: string;
-    accessPolicy: string;
-    contractPolicy: string;
+    assetTitle: string;
+    assetDescription?: string;
+    accessPolicyId?: string;
+    accessPolicyName?: string;
+    contractPolicyId?: string;
+    contractPolicyName?: string;
+    price?: number;
+    currency: string;
+    validUntil?: string;
+    status: string;
+    description?: string;
+    createdAt: string;
+    updatedAt: string;
+    createdBy?: string;
+    providerOrganization?: string;
 }
 
 export default function DataOffersPage() {
@@ -57,8 +70,8 @@ export default function DataOffersPage() {
     const fetchDataOffers = async () => {
         setIsLoading(true);
         try {
-            const data = await getDataOffers();
-            setDataOffers(data as DataOffer[]);
+            const response = await getDataOffers();
+            setDataOffers(response.dataOffers || []);
         } catch (error) {
             toast({
                 title: "Error",
@@ -79,12 +92,12 @@ export default function DataOffersPage() {
             setDataOffers(dataOffers.filter(o => o.id !== offerId));
             toast({
                 title: "Data Offer Deleted",
-                description: `The offer "${offerToDelete?.id}" has been removed.`,
+                description: `The offer for "${offerToDelete?.assetTitle}" has been removed.`,
             })
         } catch (error) {
              toast({
                 title: "Error",
-                description: `Could not delete data offer "${offerToDelete?.id}".`,
+                description: `Could not delete data offer for "${offerToDelete?.assetTitle}".`,
                 variant: "destructive",
             });
         }
@@ -112,10 +125,13 @@ export default function DataOffersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Data Offer ID</TableHead>
-                  <TableHead>Asset ID</TableHead>
+                  <TableHead>Asset</TableHead>
+                  <TableHead>Price</TableHead>
                   <TableHead>Access Policy</TableHead>
                   <TableHead>Contract Policy</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Valid Until</TableHead>
+                  <TableHead>Provider</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
@@ -124,23 +140,62 @@ export default function DataOffersPage() {
               <TableBody>
                 {isLoading ? (
                     <TableRow>
-                        <TableCell colSpan={5} className="text-center h-24">
+                        <TableCell colSpan={8} className="text-center h-24">
                             <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                         </TableCell>
                     </TableRow>
                 ) : dataOffers.length === 0 ? (
                     <TableRow>
-                        <TableCell colSpan={5} className="text-center h-24">
+                        <TableCell colSpan={8} className="text-center h-24">
                             No data offers found.
                         </TableCell>
                     </TableRow>
                 ) : (
                   dataOffers.map((offer) => (
                     <TableRow key={offer.id}>
-                      <TableCell className="font-medium">{offer.id}</TableCell>
-                      <TableCell className="font-mono text-xs">{offer.assetId}</TableCell>
-                      <TableCell>{offer.accessPolicy}</TableCell>
-                      <TableCell>{offer.contractPolicy}</TableCell>
+                      <TableCell className="font-medium">
+                        <div>
+                          <div className="font-semibold">{offer.assetTitle}</div>
+                          {offer.description && (
+                            <div className="text-sm text-muted-foreground truncate max-w-xs">
+                              {offer.description}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {offer.price ? (
+                          <span className="font-medium">
+                            {new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency: offer.currency || 'USD'
+                            }).format(offer.price)}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">Free</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{offer.accessPolicyName || '-'}</TableCell>
+                      <TableCell>{offer.contractPolicyName || '-'}</TableCell>
+                      <TableCell>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          offer.status === 'active' ? 'bg-green-100 text-green-800' : 
+                          offer.status === 'draft' ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {offer.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {offer.validUntil ? (
+                          <span className="text-sm">
+                            {new Date(offer.validUntil).toLocaleDateString()}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">No expiry</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">{offer.providerOrganization || '-'}</TableCell>
                       <TableCell className="text-right">
                         <AlertDialog>
                             <DropdownMenu>
@@ -166,7 +221,7 @@ export default function DataOffersPage() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the data offer "{offer.id}".
+                                        This action cannot be undone. This will permanently delete the data offer for "{offer.assetTitle}".
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

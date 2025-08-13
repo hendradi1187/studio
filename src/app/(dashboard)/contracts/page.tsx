@@ -39,38 +39,105 @@ import {
     ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 import { getContracts } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { formatDistanceToNow, format } from 'date-fns';
 
 type Contract = {
     id: string;
-    assetId: string;
-    provider: string;
-    consumer: string;
+    dataOfferId: string;
+    providerId: string;
+    consumerId: string;
+    contractTerms: any;
     signedAt: string;
-    terminatedAt: string;
-    transfers: number;
+    terminatedAt: string | null;
+    status: 'draft' | 'pending' | 'active' | 'terminated' | 'expired';
+    createdAt: string;
+    updatedAt: string;
+    asset: {
+        id: string;
+        title: string;
+        description: string;
+    };
+    provider: {
+        id: string;
+        name: string;
+    };
+    consumer: {
+        id: string;
+        name: string;
+    };
+    price: number;
+    currency: string;
+    transferCount: number;
 }
 
-const FilterToggle = ({ options, defaultValue }: { options: string[], defaultValue: string }) => (
-    <ToggleGroup type="single" defaultValue={defaultValue} className="border rounded-md bg-background h-10 p-1">
-        {options.map(option => (
-             <ToggleGroupItem 
-                key={option} 
-                value={option.toLowerCase()}
-                className="text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground h-full px-3 text-sm"
-            >
-                {option}
-            </ToggleGroupItem>
-        ))}
-    </ToggleGroup>
-)
 
 
 export default function ContractsPage() {
     const [contracts, setContracts] = React.useState<Contract[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [search, setSearch] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState('all');
+    const [pagination, setPagination] = React.useState({
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0
+    });
+
+    const fetchContracts = React.useCallback(async () => {
+        try {
+            setLoading(true);
+            const response = await getContracts({
+                page: pagination.page,
+                limit: pagination.limit,
+                search: search || undefined,
+                status: statusFilter !== 'all' ? statusFilter : undefined,
+                sortBy: 'created_at',
+                sortOrder: 'desc'
+            });
+            setContracts(response.contracts || []);
+            setPagination(prev => ({
+                ...prev,
+                total: response.pagination.total,
+                totalPages: response.pagination.totalPages
+            }));
+        } catch (error) {
+            console.error('Error fetching contracts:', error);
+            setContracts([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [pagination.page, pagination.limit, search, statusFilter]);
 
     React.useEffect(() => {
-        getContracts().then(data => setContracts(data as Contract[]));
-    }, []);
+        fetchContracts();
+    }, [fetchContracts]);
+
+    const handleSearch = (value: string) => {
+        setSearch(value);
+        setPagination(prev => ({ ...prev, page: 1 }));
+    };
+
+    const handleStatusFilter = (value: string) => {
+        setStatusFilter(value);
+        setPagination(prev => ({ ...prev, page: 1 }));
+    };
+
+    const getStatusBadge = (status: string) => {
+        const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+            draft: 'outline',
+            pending: 'secondary',
+            active: 'default',
+            terminated: 'destructive',
+            expired: 'destructive'
+        };
+        return (
+            <Badge variant={variants[status] || 'outline'}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+            </Badge>
+        );
+    };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -81,11 +148,25 @@ export default function ContractsPage() {
             <div className="flex items-center justify-between gap-4 mb-6">
                 <div className="relative w-full max-w-sm">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search..." className="pl-10" />
+                    <Input 
+                        placeholder="Search contracts, assets, organizations..." 
+                        className="pl-10" 
+                        value={search}
+                        onChange={(e) => handleSearch(e.target.value)}
+                    />
                 </div>
                 <div className="flex items-center gap-2">
-                    <FilterToggle options={['All', 'Active', 'Terminated']} defaultValue="active"/>
-                    <FilterToggle options={['All', 'Providing', 'Consuming']} defaultValue="all"/>
+                    <ToggleGroup type="single" value={statusFilter} onValueChange={handleStatusFilter} className="border rounded-md bg-background h-10 p-1">
+                        {['all', 'active', 'terminated', 'draft'].map(status => (
+                            <ToggleGroupItem 
+                                key={status}
+                                value={status}
+                                className="text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground h-full px-3 text-sm"
+                            >
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                            </ToggleGroupItem>
+                        ))}
+                    </ToggleGroup>
                 </div>
             </div>
 
@@ -93,35 +174,80 @@ export default function ContractsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Contract</TableHead>
-                  <TableHead>Signed At</TableHead>
-                  <TableHead>Terminated At</TableHead>
+                  <TableHead>Contract & Asset</TableHead>
+                  <TableHead>Organizations</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Transfers</TableHead>
+                  <TableHead>Signed</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {contracts.length > 0 ? (
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center h-24">
+                      Loading contracts...
+                    </TableCell>
+                  </TableRow>
+                ) : contracts.length > 0 ? (
                   contracts.map((contract) => (
                     <TableRow key={contract.id}>
                       <TableCell>
                         <Link href={`/contracts/${contract.id}`} className="flex items-center gap-3 w-full h-full">
                           <Cloud className="h-5 w-5 text-muted-foreground" />
                           <div>
-                            <div className="font-medium">{contract.assetId}</div>
-                            <div className="text-xs text-muted-foreground flex items-center">
-                                <span>{contract.provider}</span>
-                                <ArrowRight className="h-3 w-3 mx-1" />
-                                <span>{contract.consumer}</span>
+                            <div className="font-medium">{contract.asset.title}</div>
+                            <div className="text-xs text-muted-foreground">
+                                Contract ID: {contract.id.slice(0, 12)}...
                             </div>
                           </div>
                         </Link>
                       </TableCell>
-                       <TableCell><Link href={`/contracts/${contract.id}`} className="block w-full h-full">{contract.signedAt}</Link></TableCell>
-                      <TableCell><Link href={`/contracts/${contract.id}`} className="block w-full h-full">{contract.terminatedAt}</Link></TableCell>
-                      <TableCell><Link href={`/contracts/${contract.id}`} className="block w-full h-full">{contract.transfers}</Link></TableCell>
+                      <TableCell>
+                        <Link href={`/contracts/${contract.id}`} className="block w-full h-full">
+                          <div className="flex items-center gap-1 text-sm">
+                            <span className="font-medium">{contract.provider.name}</span>
+                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                            <span className="font-medium">{contract.consumer.name}</span>
+                          </div>
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Link href={`/contracts/${contract.id}`} className="block w-full h-full">
+                          {contract.price > 0 ? (
+                            <span className="font-medium">
+                              ${contract.price.toLocaleString()} {contract.currency}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Free</span>
+                          )}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Link href={`/contracts/${contract.id}`} className="block w-full h-full">
+                          {getStatusBadge(contract.status)}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Link href={`/contracts/${contract.id}`} className="block w-full h-full">
+                          <span className="font-medium">{contract.transferCount}</span>
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Link href={`/contracts/${contract.id}`} className="block w-full h-full">
+                          <div className="text-sm">
+                            {contract.signedAt ? format(new Date(contract.signedAt), 'MMM d, yyyy') : 'Not signed'}
+                          </div>
+                          {contract.signedAt && (
+                            <div className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(contract.signedAt), { addSuffix: true })}
+                            </div>
+                          )}
+                        </Link>
+                      </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon">
                           <MoreHorizontal className="h-4 w-4" />
@@ -131,7 +257,7 @@ export default function ContractsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center h-24">
+                    <TableCell colSpan={7} className="text-center h-24">
                       No contracts found.
                     </TableCell>
                   </TableRow>
@@ -155,18 +281,46 @@ export default function ContractsPage() {
               </Select>
             </div>
             <div className="flex items-center gap-4">
-              <span>1-1 of 1 results</span>
+              <span>
+                {contracts.length > 0 && (
+                  <>Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)</>
+                )}
+              </span>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  disabled={pagination.page <= 1}
+                  onClick={() => setPagination(prev => ({ ...prev, page: 1 }))}
+                >
                     <ChevronsLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  disabled={pagination.page <= 1}
+                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                >
                     <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  disabled={pagination.page >= pagination.totalPages}
+                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                >
                     <ChevronRight className="h-4 w-4" />
                 </Button>
-                 <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  disabled={pagination.page >= pagination.totalPages}
+                  onClick={() => setPagination(prev => ({ ...prev, page: prev.totalPages }))}
+                >
                     <ChevronsRight className="h-4 w-4" />
                 </Button>
               </div>

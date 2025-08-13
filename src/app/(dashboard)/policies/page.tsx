@@ -45,9 +45,17 @@ import { useToast } from '@/hooks/use-toast';
 
 type Policy = {
     id: string;
-    permissions: number;
-    prohibitions: number;
-    obligations: number;
+    name: string;
+    description?: string;
+    policyType: 'access' | 'contract' | 'usage';
+    policyRules?: any;
+    permissionsCount: number;
+    prohibitionsCount: number;
+    obligationsCount: number;
+    status: 'draft' | 'active' | 'inactive';
+    createdAt: string;
+    updatedAt: string;
+    createdBy?: string;
 }
 export default function PoliciesPage() {
   const [policies, setPolicies] = React.useState<Policy[]>([]);
@@ -61,8 +69,8 @@ export default function PoliciesPage() {
   const fetchPolicies = async () => {
     setIsLoading(true);
     try {
-      const data = await getPolicies();
-      setPolicies(data as Policy[]);
+      const response = await getPolicies();
+      setPolicies(response.policies || []);
     } catch (error) {
       toast({
         title: "Error",
@@ -83,12 +91,12 @@ export default function PoliciesPage() {
         setPolicies(policies.filter(p => p.id !== policyId));
         toast({
             title: "Policy Deleted",
-            description: `Policy "${policyToDelete?.id}" has been removed.`,
+            description: `Policy "${policyToDelete?.name}" has been removed.`,
         });
     } catch (error) {
         toast({
             title: "Error",
-            description: `Could not delete policy "${policyToDelete?.id}".`,
+            description: `Could not delete policy "${policyToDelete?.name}".`,
             variant: "destructive",
         });
     }
@@ -126,10 +134,13 @@ export default function PoliciesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Policy ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Permissions</TableHead>
                   <TableHead>Prohibitions</TableHead>
                   <TableHead>Obligations</TableHead>
+                  <TableHead>Created By</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
@@ -138,23 +149,51 @@ export default function PoliciesPage() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center h-24">
+                    <TableCell colSpan={8} className="text-center h-24">
                       <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                     </TableCell>
                   </TableRow>
                 ) : policies.length === 0 ? (
                     <TableRow>
-                        <TableCell colSpan={5} className="text-center h-24">
+                        <TableCell colSpan={8} className="text-center h-24">
                             No policies found.
                         </TableCell>
                     </TableRow>
                 ) : (
                   policies.map((policy) => (
                     <TableRow key={policy.id}>
-                        <TableCell className="font-medium">{policy.id}</TableCell>
-                        <TableCell>{getBadge(policy.permissions)}</TableCell>
-                        <TableCell>{getBadge(policy.prohibitions)}</TableCell>
-                        <TableCell>{getBadge(policy.obligations)}</TableCell>
+                        <TableCell className="font-medium">
+                            <div>
+                                <div className="font-semibold">{policy.name}</div>
+                                {policy.description && (
+                                    <div className="text-sm text-muted-foreground truncate max-w-xs">
+                                        {policy.description}
+                                    </div>
+                                )}
+                            </div>
+                        </TableCell>
+                        <TableCell>
+                            <Badge variant={
+                                policy.policyType === 'access' ? 'default' :
+                                policy.policyType === 'contract' ? 'secondary' : 'outline'
+                            }>
+                                {policy.policyType}
+                            </Badge>
+                        </TableCell>
+                        <TableCell>
+                            <Badge variant={
+                                policy.status === 'active' ? 'default' :
+                                policy.status === 'draft' ? 'secondary' : 'destructive'
+                            }>
+                                {policy.status}
+                            </Badge>
+                        </TableCell>
+                        <TableCell>{getBadge(policy.permissionsCount)}</TableCell>
+                        <TableCell>{getBadge(policy.prohibitionsCount)}</TableCell>
+                        <TableCell>{getBadge(policy.obligationsCount)}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                            {policy.createdBy || 'System'}
+                        </TableCell>
                         <TableCell className="text-right">
                             <AlertDialog>
                                 <DropdownMenu>
@@ -180,7 +219,7 @@ export default function PoliciesPage() {
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently delete the policy "{policy.id}".
+                                            This action cannot be undone. This will permanently delete the policy "{policy.name}".
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
